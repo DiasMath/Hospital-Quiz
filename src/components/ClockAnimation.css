@@ -1,0 +1,48 @@
+/* Container do relógio */
+.clock {
+    width: 3rem;
+    height: 3rem;
+    border: 4px solid #4a5568;    /* cinza-700 */
+    border-radius: 50%;
+    position: relative;
+    margin-left: 1rem;
+    overflow: hidden;              /* esconde excesso do fill */
+  
+    /* Garante que a escala ocorra em torno do centro */
+    transform-origin: center;
+  }
+  
+  /* Camada interna de preenchimento via conic-gradient */
+  .clock-fill {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border-radius: 50%;
+    transition: background 0.3s ease;
+  }
+  
+  /* Ponteiro do relógio */
+  .clock-hand {
+    width: 3px;
+    height: 40%;
+    background-color: #4a5568;     /* cinza-700 */
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform-origin: bottom center;
+    transition: transform 0.5s linear;
+  }
+  
+  /* Animação de pulso aplicado ao container .clock */
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.1); }
+  }
+  
+  /* Aplica pulso contínuo quando em estado de aviso (<=10s) */
+  .clock.warning {
+    animation: pulse 1s infinite;
+  }
+  

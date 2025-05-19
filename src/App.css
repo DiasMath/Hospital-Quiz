@@ -1,0 +1,38 @@
+/* --------------------------------------------------------------------------
+   Container externo que ocupa toda a tela e centraliza o quiz
+   -------------------------------------------------------------------------- */
+   .quiz-wrapper {
+    @apply flex items-center justify-center min-h-screen bg-gray-50 p-4;
+  }
+  
+  /* --------------------------------------------------------------------------
+     Caixa principal onde ficam a barra de progresso e as perguntas
+     -------------------------------------------------------------------------- */
+     .quiz-container {
+      /* largura total do pai + largura máxima */
+      @apply w-full max-w-7xl;
+      
+      /* altura fixa (80% da viewport); ajuste para 70vh, 600px etc */
+      @apply h-[65vh];
+    
+      /* estilo visual */
+      @apply bg-white shadow-lg rounded-lg p-8;
+    
+      /* layout vertical; filhos esticam na largura por padrão */
+      @apply flex flex-col;
+    }
+    
+    /* --------------------------------------------------------------------------
+       Linha que contém a barra de progresso e o timer
+       -------------------------------------------------------------------------- */
+    .quiz-progress {
+      @apply w-full flex justify-between items-center ;
+    }
+    
+    /* --------------------------------------------------------------------------
+       Área de conteúdo das perguntas/resultado que deve preencher todo espaço
+       -------------------------------------------------------------------------- */
+    .quiz-content {
+      /* ocupa todo o espaço vertical restante da .quiz-container */
+      @apply w-full flex-grow flex flex-col;
+    }
