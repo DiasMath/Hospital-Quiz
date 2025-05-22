@@ -1,0 +1,153 @@
+.result-container {
+  @apply w-full h-screen flex flex-col items-center justify-center relative;
+}
+
+.result-background-image {
+  @apply absolute inset-0 w-full h-full object-cover z-0;
+}
+
+.result-content {
+  @apply relative z-10 w-full h-full flex flex-col items-center justify-center;
+}
+
+.result-blur-box {
+  @apply w-full max-w-4xl p-12 rounded-3xl backdrop-blur-md bg-white bg-opacity-60 shadow-2xl;
+}
+
+.result-title {
+  @apply text-5xl font-bold mb-8 text-center text-black;
+}
+
+.result-table-container {
+  @apply w-full max-w-2xl max-h-[300px] overflow-y-auto pr-4 rounded-lg shadow-lg bg-white bg-opacity-95 mx-auto;
+
+  /* Estilo do scrollbar */
+  &::-webkit-scrollbar {
+    width: 10px; /* Largura da barra de scroll */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Cor do fundo da barra de scroll */
+    border-radius: 10px; /* Arredondamento do fundo */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888; /* Cor do 'pegador' do scroll */
+    border-radius: 10px; /* Arredondamento do pegador */
+  }
+
+  /* Efeito hover no pegador */
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Cor do pegador ao passar o mouse */
+  }
+
+  /* Remove as setas (tentativa 3) */
+  &::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Tenta remover as partes do trilho onde as setas estariam (mantido por segurança) */
+  &::-webkit-scrollbar-track-piece {
+    display: none;
+  }
+
+  /* Estilo para navegadores Firefox */
+  scrollbar-width: thin; /* 'auto' ou 'none' */
+  scrollbar-color: #888 #f1f1f1; /* pegador track */
+}
+
+.result-table {
+  @apply w-full text-xl text-gray-800;
+}
+
+.result-table-header {
+  @apply sticky top-0 bg-gray-100;
+}
+
+.result-table-header-row {
+  @apply border-b-2 border-gray-300;
+}
+
+.result-table-header-cell {
+  @apply py-3 px-4 font-bold text-gray-700;
+}
+
+.result-table-row {
+  @apply border-b border-gray-200;
+}
+
+.result-table-row-first {
+  @apply bg-yellow-50;
+}
+
+.result-table-row-second {
+  @apply bg-gray-50;
+}
+
+.result-table-row-third {
+  @apply bg-orange-50;
+}
+
+.result-table-cell {
+  @apply py-3 px-4 font-medium;
+}
+
+.result-table-cell-center {
+  @apply text-center;
+}
+
+.result-table-cell-right {
+  @apply text-right;
+}
+
+.result-rank-first {
+  @apply text-yellow-600;
+}
+
+.result-rank-second {
+  @apply text-gray-600;
+}
+
+.result-rank-third {
+  @apply text-orange-600;
+}
+
+.result-rank-other {
+  @apply text-gray-500;
+}
+
+.result-thank-you {
+  @apply text-3xl font-semibold mb-8 mt-8 text-center text-black;
+}
+
+.result-motivation {
+  @apply text-2xl mb-10 italic text-center text-black;
+}
+
+.result-credits {
+  @apply text-lg mb-8 text-center text-black;
+}
+
+/* Animação de pulso para o botão */
+@keyframes pulse-yellow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.13);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.result-button {
+  @apply px-8 py-4 bg-yellow-500 text-white text-xl font-medium
+         rounded-lg shadow-lg hover:bg-yellow-400 transition duration-200 mx-auto block;
+  border-radius: 2rem;
+  font-size: 1.5rem;
+  animation: pulse-yellow 2s infinite;
+} 

@@ -1,4 +1,5 @@
 import React from 'react';
+import './Result.css';
 
 /**
  * Componente de resultado final com ranking.
@@ -46,85 +47,92 @@ export default function Result({ score, total, onRestart, ranking }) {
   const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center">
-      {/* Título com a porcentagem da tentativa atual */}
-      <h2 className="text-5xl font-bold mb-6 text-center">
-        Você acertou {percent}% das questões!
-      </h2>
+    <div className="result-container">
+      {/* Imagem de fundo */}
+      <img 
+        src="/assets/imagem_final.jpg" 
+        alt="Imagem de fundo do resultado" 
+        className="result-background-image"
+      />
 
-      {/* Ranking Table com scroll */}
-      <div className="w-full max-w-2xl max-h-[300px] overflow-y-auto pr-4 rounded-lg shadow-lg bg-white">
-        {ranking.length > 0 ? (
-          <table className="w-full text-xl text-gray-800">
-            <thead className="sticky top-0 bg-gray-100">
-              <tr className="border-b-2 border-gray-300">
-                <th className="py-3 px-4 text-center font-bold text-gray-700">Ranking</th>
-                <th className="py-3 px-4 text-left font-bold text-gray-700">Jogador</th>
-                <th className="py-3 px-4 text-center font-bold text-gray-700">Acertos</th>
-                <th className="py-3 px-4 text-right font-bold text-gray-700">Tempo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranking.map((entry, index) => (
-                <tr 
-                  key={index} 
-                  className={`
-                    border-b border-gray-200 
-                    ${index === 0 ? 'bg-yellow-50' : ''}
-                    ${index === 1 ? 'bg-gray-50' : ''}
-                    ${index === 2 ? 'bg-orange-50' : ''}
-                  `}
-                >
-                  <td className="py-3 px-4 text-center font-bold">
-                    <span className={`
-                      ${index === 0 ? 'text-yellow-600' : ''}
-                      ${index === 1 ? 'text-gray-600' : ''}
-                      ${index === 2 ? 'text-orange-600' : ''}
-                      ${index > 2 ? 'text-gray-500' : ''}
-                    `}>
-                      {index + 1}º
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 font-medium">{entry.name}</td>
-                  <td className="py-3 px-4 text-center font-medium">{entry.score}</td>
-                  <td className="py-3 px-4 text-right font-medium">{entry.time}s</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="text-center text-gray-600 py-8">Nenhum resultado registrado ainda.</p>
-        )}
+      {/* Conteúdo com overlay para melhor legibilidade */}
+      <div className="result-content">
+        {/* Caixa com blur */}
+        <div className="result-blur-box">
+          {/* Título com a porcentagem da tentativa atual */}
+          <h2 className="result-title">
+            Você acertou {percent}% das questões!
+          </h2>
+
+          {/* Ranking Table com scroll */}
+          <div className="result-table-container">
+            {ranking.length > 0 ? (
+              <table className="result-table">
+                <thead className="result-table-header">
+                  <tr className="result-table-header-row">
+                    <th className="result-table-header-cell result-table-cell-center">Ranking</th>
+                    <th className="result-table-header-cell">Jogador</th>
+                    <th className="result-table-header-cell result-table-cell-center">Acertos</th>
+                    <th className="result-table-header-cell result-table-cell-right">Tempo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ranking.map((entry, index) => (
+                    <tr 
+                      key={index} 
+                      className={`
+                        result-table-row
+                        ${index === 0 ? 'result-table-row-first' : ''}
+                        ${index === 1 ? 'result-table-row-second' : ''}
+                        ${index === 2 ? 'result-table-row-third' : ''}
+                      `}
+                    >
+                      <td className="result-table-cell result-table-cell-center">
+                        <span className={`
+                          ${index === 0 ? 'result-rank-first' : ''}
+                          ${index === 1 ? 'result-rank-second' : ''}
+                          ${index === 2 ? 'result-rank-third' : ''}
+                          ${index > 2 ? 'result-rank-other' : ''}
+                        `}>
+                          {index + 1}º
+                        </span>
+                      </td>
+                      <td className="result-table-cell">{entry.name}</td>
+                      <td className="result-table-cell result-table-cell-center">{entry.score}</td>
+                      <td className="result-table-cell result-table-cell-right">{entry.time}s</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-center text-gray-600 py-8">Nenhum resultado registrado ainda.</p>
+            )}
+          </div>
+
+          {/* Mensagem de agradecimento maior */}
+          <p className="result-thank-you">
+            Obrigado por participar!
+          </p>
+
+          {/* Frase de motivação aleatória */}
+          <p className="result-motivation">
+            "{randomPhrase}"
+          </p>
+
+          {/* Créditos */}
+          <p className="result-credits">
+            Feito por: Nayana Ramos, ...
+          </p>
+
+          {/* Botão para reiniciar o quiz */}
+          <button
+            onClick={onRestart}
+            className="result-button"
+          >
+            Reiniciar Quiz
+          </button>
+        </div>
       </div>
-
-      {/* Mensagem de agradecimento maior */}
-      <p className="text-2xl font-semibold text-gray-800 mb-8 mt-8 text-center">
-        Obrigado por participar!
-      </p>
-
-      {/* Frase de motivação aleatória */}
-      <p className="text-xl text-gray-700 mb-10 italic text-center">
-        "{randomPhrase}"
-      </p>
-
-      {/* Créditos */}
-      <p className="text-lg text-gray-600 mb-8 text-center">
-        Feito por: Maria, Clara.
-      </p>
-
-      {/* Botão para reiniciar o quiz */}
-      <button
-        onClick={onRestart}
-        className="
-          px-6 py-3 
-          bg-blue-600 text-white 
-          rounded-lg text-lg 
-          hover:bg-blue-700 
-          transition duration-300
-        "
-      >
-        Reiniciar Quiz
-      </button>
     </div>
   );
 }
