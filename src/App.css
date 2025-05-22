@@ -1,4 +1,35 @@
 /* --------------------------------------------------------------------------
+   Container principal que ocupa toda a tela e acomoda a imagem de fundo e o conteúdo
+   -------------------------------------------------------------------------- */
+.app-container {
+  @apply w-screen h-screen overflow-hidden relative
+         bg-gradient-to-br from-blue-500 to-green-400; /* Adicionado gradiente de fundo */
+}
+
+/* --------------------------------------------------------------------------
+   Imagem de fundo que cobre toda a tela
+   -------------------------------------------------------------------------- */
+.app-background-image {
+  @apply absolute inset-0 w-full h-full;
+  object-fit: cover;
+  z-index: -2; /* Um z-index menor que o do conteúdo */
+}
+
+/* --------------------------------------------------------------------------
+   Overlay para a tela inicial (StartScreen)
+   -------------------------------------------------------------------------- */
+.start-screen-overlay {
+  @apply absolute inset-0 flex items-center justify-center z-10;
+}
+
+/* --------------------------------------------------------------------------
+   Overlay para a tela do quiz
+   -------------------------------------------------------------------------- */
+.quiz-overlay {
+  @apply absolute inset-0 flex items-center justify-center z-10;
+}
+
+/* --------------------------------------------------------------------------
    Container externo que ocupa toda a tela e centraliza o quiz
    -------------------------------------------------------------------------- */
    .quiz-wrapper {

@@ -10,6 +10,11 @@ import './StartScreen.css';
 export default function StartScreen({ onStart }) {
   return (
     <div className="start-screen-wrapper">
+      <img 
+        src="/assets/imagem_inicial_02.jpg" 
+        alt="Imagem inicial do quiz" 
+        className="start-screen-background-image"
+      />
       <div className="start-screen-container">
         {/* Título principal estilizado */}
         <h1 className="start-screen-title">

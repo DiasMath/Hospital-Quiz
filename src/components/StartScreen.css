@@ -1,23 +1,42 @@
-/* Wrapper full-screen com gradiente de fundo */
+/* Wrapper full-screen com a imagem de fundo */
 .start-screen-wrapper {
-    @apply flex items-center justify-center min-h-screen
-           bg-gradient-to-br from-blue-500 to-green-400;
+    @apply flex items-center justify-center min-h-screen relative;
+    /* O gradiente de fundo será removido aqui e substituído pela imagem */
   }
   
+  /* Estilo para a imagem de fundo */
+  .start-screen-background-image {
+    @apply absolute inset-0 w-full h-full;
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+    z-index: -1; /* Coloca a imagem atrás de outros elementos */
+  }
+
   /* Caixa centralizada com fundo semi-transparente e blur */
   .start-screen-container {
-    @apply bg-white bg-opacity-80 backdrop-blur-lg
-           rounded-xl p-10 flex flex-col items-center;
+    @apply bg-white bg-opacity-60 backdrop-blur-xl
+           rounded-xl p-12 flex flex-col items-center
+           border-4 border-yellow-400;
+    z-index: 1; /* Garante que o conteúdo fique acima da imagem de fundo */
+    border-radius: 5rem;
+  }
+  
+  /* Estilo para a imagem inicial */
+  .start-screen-image {
+    @apply w-full max-w-2xl rounded-lg shadow-lg mb-8;
+    max-height: 400px;
+    object-fit: cover;
   }
   
   /* Título grande e em negrito */
   .start-screen-title {
-    @apply text-5xl font-extrabold text-gray-800 mb-6;
+    @apply text-7xl font-extrabold text-gray-800 mb-14;
   }
   
   /* Botão com destaque, sombra e hover suave */
   .start-screen-button {
-    @apply px-8 py-4 bg-blue-600 text-white text-xl font-medium
-           rounded-lg shadow-lg hover:bg-blue-700 transition duration-300;
+    @apply px-8 py-4 bg-yellow-500 text-white text-xl font-medium
+           rounded-lg shadow-lg hover:bg-yellow-400 transition duration-200;
+    border-radius: 2rem;
+    font-size: 1.5rem; /* Aumenta o tamanho do texto do botão */
   }
   
