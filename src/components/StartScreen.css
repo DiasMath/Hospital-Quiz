@@ -1,10 +1,34 @@
+/* Animação de pulso para o botão */
+@keyframes pulse-yellow {
+  0%, 100% {
+    transform: scale(1); /* Tamanho normal */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra normal */
+  }
+  50% {
+    transform: scale(1.13); /* Levemente maior no meio da animação */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Sombra expandida */
+  }
+}
+
+/* Animação para a barra de progresso de erro */
+@keyframes decrease-width {
+  from { width: 100%; } /* Começa cheia */
+  to { width: 0%; } /* Termina vazia */
+}
+
 /* Wrapper full-screen com a imagem de fundo */
 .start-screen-wrapper {
     @apply flex items-center justify-center min-h-screen relative;
-    /* O gradiente de fundo será removido aqui e substituído pela imagem */
-  }
+    flex-direction: column; /* Para alinhar os itens verticalmente */
+}
+
+/* Estilo para aplicar blur ao fundo */
+.start-screen-wrapper.blur-background > *:not(.error-overlay) {
+  filter: blur(5px); /* Ajuste o valor do blur conforme necessário */
+  pointer-events: none; /* Impede interação com os elementos desfocados */
+}
   
-  /* Estilo para a imagem de fundo */
+  /* Estilo para a imagem de fundo da tela inicial */
   .start-screen-background-image {
     @apply absolute inset-0 w-full h-full;
     object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
@@ -15,7 +39,7 @@
   .start-screen-container {
     @apply bg-white bg-opacity-60 backdrop-blur-xl
            rounded-xl p-12 flex flex-col items-center
-           border-4 border-yellow-400;
+           border-4 border-yellow-400 space-y-6; /* Adicionado espaço vertical entre os itens */
     z-index: 1; /* Garante que o conteúdo fique acima da imagem de fundo */
     border-radius: 5rem;
   }
@@ -29,14 +53,41 @@
   
   /* Título grande e em negrito */
   .start-screen-title {
-    @apply text-7xl font-extrabold text-gray-800 mb-14;
+    @apply text-7xl font-extrabold text-gray-800 mb-4; /* Ajustado margem inferior */
   }
   
+  /* Estilo para o campo de nome */
+  .player-name-input {
+    @apply px-4 py-3 text-xl rounded-lg border-2 border-gray-300
+           focus:outline-none focus:border-orange-300 transition duration-200;
+    min-width: 300px; /* Garante uma largura mínima */
+    text-align: center; /* Centraliza o texto digitado */
+  }
+
   /* Botão com destaque, sombra e hover suave */
   .start-screen-button {
     @apply px-8 py-4 bg-yellow-500 text-white text-xl font-medium
            rounded-lg shadow-lg hover:bg-yellow-400 transition duration-200;
     border-radius: 2rem;
-    font-size: 1.5rem; /* Aumenta o tamanho do texto do botão */
+    font-size: 1.5rem;
+    animation: pulse-yellow 2s infinite; /* Aplica a animação de pulso */
+  }
+
+  /* Estilos para o overlay da mensagem de erro */
+  .error-overlay {
+    @apply fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40; /* Cobre a tela, centraliza e adiciona fundo semi-transparente */
+  }
+
+  /* Estilos para a caixa da mensagem de erro dentro do overlay */
+  .error-message {
+    @apply bg-white text-red-700 text-center text-2xl font-bold
+           rounded-lg p-6 shadow-lg max-w-sm relative; /* Adicionado relative para posicionar a barra */
+    overflow: hidden; /* Garante que a barra que 'desce' não saia dos limites */
+  }
+
+  /* Estilos para a barra de progresso da mensagem de erro */
+  .error-progress-bar {
+    @apply absolute bottom-0 right-0 h-2 bg-red-700; /* Posiciona na parte inferior direita, altura, cor */
+    animation: decrease-width 2s linear forwards; /* Aplica a animação, duração igual ao timer do useEffect */
   }
   

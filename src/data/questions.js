@@ -9,6 +9,7 @@ const questions = [
       "d) Realizar anestesia e posicionar o paciente na mesa cirúrgica"
     ],
     correctIndex: 1,
+    imageUrl: "/assets/question_01.jpg",
   },
   {
     phaseText: "Fase 2: Transoperatório (transporte e chegada no centro cirúrgico)",
@@ -20,6 +21,7 @@ const questions = [
       "d) Informar familiares sobre o tempo de cirurgia e aplicar medicação pré-anestésica"
     ],
     correctIndex: 1,
+    imageUrl: "/assets/question_02.jpg",
   },
   {
     phaseText: "Fase 3: Intraoperatório/Transoperatório (durante a cirurgia)",
@@ -31,6 +33,7 @@ const questions = [
       "d) Abrir materiais estéreis e auxiliar a equipe mantendo a assepsia"
     ],
     correctIndex: 3,
+    imageUrl: "/assets/question_03.jpg",
   },
   {
     phaseText: "Fase 4: Pós-operatório (sala de recuperação ou retorno à unidade)",
@@ -42,6 +45,7 @@ const questions = [
       "d) Retirar o acesso venoso e oferecer alimentação sólida"
     ],
     correctIndex: 1,
+    imageUrl: "/assets/question_04.jpg",
   },
 ];
 

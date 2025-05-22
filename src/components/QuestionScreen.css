@@ -1,0 +1,19 @@
+/* Container que envolve toda a tela da pergunta */
+.question-screen-wrapper {
+  @apply w-screen h-screen overflow-hidden relative;
+}
+
+/* Estilo para a imagem de fundo da pergunta */
+.question-background-image {
+  @apply absolute inset-0 w-full h-full;
+  object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+  z-index: -1; /* Coloca a imagem atrás do conteúdo */
+}
+
+/* Container para o conteúdo da pergunta (barra de progresso, card, etc.) */
+.question-content-container {
+    @apply absolute inset-0 flex items-center justify-center z-10; /* Posiciona o conteúdo por cima da imagem */
+}
+
+/* Reutiliza estilos existentes do quiz (ajuste se necessário) */
+/* .quiz-wrapper e .quiz-container, .quiz-progress, .quiz-content podem ser mantidos como estão ou ajustados */ 

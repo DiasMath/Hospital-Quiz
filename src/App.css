@@ -1,39 +1,38 @@
 /* --------------------------------------------------------------------------
-   Container principal que ocupa toda a tela e acomoda a imagem de fundo e o conteúdo
+   Container principal que ocupa toda a tela e acomoda o conteúdo (sem imagem de fundo global)
    -------------------------------------------------------------------------- */
 .app-container {
-  @apply w-screen h-screen overflow-hidden relative
-         bg-gradient-to-br from-blue-500 to-green-400; /* Adicionado gradiente de fundo */
+  @apply w-screen h-screen overflow-hidden relative;
 }
 
 /* --------------------------------------------------------------------------
-   Imagem de fundo que cobre toda a tela
+   Imagem de fundo que cobre toda a área da tela do quiz
    -------------------------------------------------------------------------- */
-.app-background-image {
+.quiz-background-image {
   @apply absolute inset-0 w-full h-full;
   object-fit: cover;
-  z-index: -2; /* Um z-index menor que o do conteúdo */
+  z-index: -1; /* Garante que a imagem do quiz fique atrás do conteúdo do quiz */
 }
 
 /* --------------------------------------------------------------------------
-   Overlay para a tela inicial (StartScreen)
+   Overlay para a tela inicial (StartScreen) - Garante que o StartScreen fique por cima
    -------------------------------------------------------------------------- */
 .start-screen-overlay {
   @apply absolute inset-0 flex items-center justify-center z-10;
 }
 
 /* --------------------------------------------------------------------------
-   Overlay para a tela do quiz
+   Overlay para a tela do quiz - Garante que o conteúdo do quiz fique por cima
    -------------------------------------------------------------------------- */
 .quiz-overlay {
   @apply absolute inset-0 flex items-center justify-center z-10;
 }
 
 /* --------------------------------------------------------------------------
-   Container externo que ocupa toda a tela e centraliza o quiz
+   Container externo que centraliza o quiz (removido background e min-height)
    -------------------------------------------------------------------------- */
    .quiz-wrapper {
-    @apply flex items-center justify-center min-h-screen bg-gray-50 p-4;
+    @apply flex items-center justify-center p-4;
   }
   
   /* --------------------------------------------------------------------------
