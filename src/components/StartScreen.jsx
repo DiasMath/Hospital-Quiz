@@ -31,7 +31,7 @@ export default function StartScreen({ onStart }) {
     if (showError) {
       const timer = setTimeout(() => {
         setShowError(false);
-      }, 3000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [showError]);
