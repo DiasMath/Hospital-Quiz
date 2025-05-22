@@ -107,14 +107,19 @@ export default function App() {
   });
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       {currentScreen === 'start' && (
         <motion.div
           key="start"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 100,
+            damping: 20,
+            duration: 0.5
+          }}
         >
           <StartScreen onStart={handleStart} />
         </motion.div>
@@ -123,10 +128,13 @@ export default function App() {
       {currentScreen === 'quiz' && step < questions.length && (
         <motion.div
           key={step}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ 
+            duration: 0.4,
+            ease: "easeInOut"
+          }}
         >
           <QuestionScreen
             question={questions[step]}
@@ -144,7 +152,12 @@ export default function App() {
           key="result"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 100,
+            damping: 20,
+            duration: 0.5
+          }}
         >
           <Result
             score={score}

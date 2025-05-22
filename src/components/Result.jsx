@@ -46,27 +46,54 @@ export default function Result({ score, total, onRestart, ranking }) {
   const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full h-screen flex flex-col items-center justify-center">
       {/* Título com a porcentagem da tentativa atual */}
       <h2 className="text-5xl font-bold mb-6 text-center">
         Você acertou {percent}% das questões!
       </h2>
 
-      {/* Ranking Title */}
-      <h3 className="text-3xl font-bold mb-4 mt-8">Ranking</h3>
-
-      {/* Ranking List */}
-      <div className="w-full max-w-sm">
+      {/* Ranking Table com scroll */}
+      <div className="w-full max-w-2xl max-h-[300px] overflow-y-auto pr-4 rounded-lg shadow-lg bg-white">
         {ranking.length > 0 ? (
-          <ol className="list-decimal list-inside text-xl text-gray-800">
-            {ranking.map((entry, index) => (
-              <li key={index} className="mb-2">
-                <strong>{entry.name}:</strong> {entry.score} acerto(s) em {entry.time} segundos
-              </li>
-            ))}
-          </ol>
+          <table className="w-full text-xl text-gray-800">
+            <thead className="sticky top-0 bg-gray-100">
+              <tr className="border-b-2 border-gray-300">
+                <th className="py-3 px-4 text-center font-bold text-gray-700">Ranking</th>
+                <th className="py-3 px-4 text-left font-bold text-gray-700">Jogador</th>
+                <th className="py-3 px-4 text-center font-bold text-gray-700">Acertos</th>
+                <th className="py-3 px-4 text-right font-bold text-gray-700">Tempo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ranking.map((entry, index) => (
+                <tr 
+                  key={index} 
+                  className={`
+                    border-b border-gray-200 
+                    ${index === 0 ? 'bg-yellow-50' : ''}
+                    ${index === 1 ? 'bg-gray-50' : ''}
+                    ${index === 2 ? 'bg-orange-50' : ''}
+                  `}
+                >
+                  <td className="py-3 px-4 text-center font-bold">
+                    <span className={`
+                      ${index === 0 ? 'text-yellow-600' : ''}
+                      ${index === 1 ? 'text-gray-600' : ''}
+                      ${index === 2 ? 'text-orange-600' : ''}
+                      ${index > 2 ? 'text-gray-500' : ''}
+                    `}>
+                      {index + 1}º
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 font-medium">{entry.name}</td>
+                  <td className="py-3 px-4 text-center font-medium">{entry.score}</td>
+                  <td className="py-3 px-4 text-right font-medium">{entry.time}s</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
-          <p className="text-center text-gray-600">Nenhum resultado registrado ainda.</p>
+          <p className="text-center text-gray-600 py-8">Nenhum resultado registrado ainda.</p>
         )}
       </div>
 
@@ -77,7 +104,7 @@ export default function Result({ score, total, onRestart, ranking }) {
 
       {/* Frase de motivação aleatória */}
       <p className="text-xl text-gray-700 mb-10 italic text-center">
-        “{randomPhrase}”
+        "{randomPhrase}"
       </p>
 
       {/* Créditos */}
