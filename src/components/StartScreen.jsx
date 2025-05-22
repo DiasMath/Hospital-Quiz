@@ -5,7 +5,7 @@ import './StartScreen.css';
  * Tela de boas-vindas antes de iniciar o quiz.
  *
  * Props:
- * - onStart: callback para iniciar o jogo
+ * - onStart: callback para iniciar o jogo (agora recebe o nome do jogador)
  */
 export default function StartScreen({ onStart }) {
   const [playerName, setPlayerName] = useState('');
@@ -23,7 +23,7 @@ export default function StartScreen({ onStart }) {
       setShowError(true);
     } else {
       setShowError(false);
-      onStart();
+      onStart(playerName.trim());
     }
   };
 
@@ -31,7 +31,7 @@ export default function StartScreen({ onStart }) {
     if (showError) {
       const timer = setTimeout(() => {
         setShowError(false);
-      }, 2000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [showError]);

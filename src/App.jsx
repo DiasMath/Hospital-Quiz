@@ -11,17 +11,42 @@ import './App.css';
 import QuestionScreen from './components/QuestionScreen';
 
 const QUESTION_TIME = 30; // segundos por pergunta
+const RANKING_STORAGE_KEY = 'quizRanking'; // Chave para o localStorage
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
   const [step, setStep] = useState(0);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
+  const [quizStartTime, setQuizStartTime] = useState(null);
+  const [currentPlayerName, setCurrentPlayerName] = useState('');
 
-  const handleStart = () => {
+  // Estado ranking inicializado lendo do localStorage
+  const [ranking, setRanking] = useState(() => {
+    try {
+      const savedRanking = localStorage.getItem(RANKING_STORAGE_KEY);
+      return savedRanking ? JSON.parse(savedRanking) : [];
+    } catch (error) {
+      console.error('Could not load ranking from localStorage', error);
+      return [];
+    }
+  });
+
+  // Efeito para salvar o ranking no localStorage sempre que ele mudar
+  useEffect(() => {
+    try {
+      localStorage.setItem(RANKING_STORAGE_KEY, JSON.stringify(ranking));
+    } catch (error) {
+      console.error('Could not save ranking to localStorage', error);
+    }
+  }, [ranking]); // Depende do estado ranking
+
+  const handleStart = (playerName) => {
     setStep(0);
     setScore(0);
     setTimeLeft(QUESTION_TIME);
+    setQuizStartTime(Date.now());
+    setCurrentPlayerName(playerName);
     setCurrentScreen('quiz');
   };
 
@@ -52,6 +77,14 @@ export default function App() {
       setStep(nextStep);
       setTimeLeft(QUESTION_TIME);
     } else {
+      const quizEndTime = Date.now();
+      const totalTime = Math.round((quizEndTime - quizStartTime) / 1000);
+      
+      setRanking(prevRanking => [
+        ...prevRanking,
+        { name: currentPlayerName, score: score + (isCorrect ? 1 : 0), time: totalTime }
+      ]);
+      
       setCurrentScreen('result');
     }
   };
@@ -60,8 +93,18 @@ export default function App() {
     setScore(0);
     setStep(0);
     setTimeLeft(QUESTION_TIME);
+    setQuizStartTime(null);
+    setCurrentPlayerName('');
     setCurrentScreen('start');
   };
+
+  const sortedRanking = [...ranking].sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    } else {
+      return a.time - b.time;
+    }
+  });
 
   return (
     <AnimatePresence mode="wait">
@@ -107,6 +150,7 @@ export default function App() {
             score={score}
             total={questions.length}
             onRestart={restart}
+            ranking={sortedRanking}
           />
         </motion.div>
       )}

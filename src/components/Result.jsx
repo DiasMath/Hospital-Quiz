@@ -1,15 +1,16 @@
 import React from 'react';
 
 /**
- * Componente de resultado final.
+ * Componente de resultado final com ranking.
  *
  * Props:
- * - score: número de acertos
+ * - score: número de acertos da tentativa atual
  * - total: total de perguntas
  * - onRestart: callback para reiniciar o quiz
+ * - ranking: Array de objetos com { name, score, time } de todos os resultados
  */
-export default function Result({ score, total, onRestart }) {
-  // Calcula a porcentagem de acertos (arredondada para inteiro)
+export default function Result({ score, total, onRestart, ranking }) {
+  // Calcula a porcentagem de acertos (arredondada para inteiro) da tentativa atual
   const percent = Math.round((score / total) * 100);
 
   // Lista com 25 frases de motivação
@@ -46,18 +47,36 @@ export default function Result({ score, total, onRestart }) {
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Título com a porcentagem */}
+      {/* Título com a porcentagem da tentativa atual */}
       <h2 className="text-5xl font-bold mb-6 text-center">
         Você acertou {percent}% das questões!
       </h2>
 
+      {/* Ranking Title */}
+      <h3 className="text-3xl font-bold mb-4 mt-8">Ranking</h3>
+
+      {/* Ranking List */}
+      <div className="w-full max-w-sm">
+        {ranking.length > 0 ? (
+          <ol className="list-decimal list-inside text-xl text-gray-800">
+            {ranking.map((entry, index) => (
+              <li key={index} className="mb-2">
+                <strong>{entry.name}:</strong> {entry.score} acerto(s) em {entry.time} segundos
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="text-center text-gray-600">Nenhum resultado registrado ainda.</p>
+        )}
+      </div>
+
       {/* Mensagem de agradecimento maior */}
-      <p className="text-4xl font-semibold text-gray-800 mb-8 text-center">
+      <p className="text-2xl font-semibold text-gray-800 mb-8 mt-8 text-center">
         Obrigado por participar!
       </p>
 
       {/* Frase de motivação aleatória */}
-      <p className="text-2xl text-gray-700 mb-10 italic text-center">
+      <p className="text-xl text-gray-700 mb-10 italic text-center">
         “{randomPhrase}”
       </p>
 
