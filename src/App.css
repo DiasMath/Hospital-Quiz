@@ -66,3 +66,18 @@
       /* ocupa todo o espaço vertical restante da .quiz-container */
       @apply w-full flex-grow flex flex-col;
     }
+
+/* Estilos globais para remover scroll */
+html, body {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#root {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
