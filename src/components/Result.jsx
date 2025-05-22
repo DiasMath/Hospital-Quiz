@@ -121,7 +121,7 @@ export default function Result({ score, total, onRestart, ranking }) {
 
           {/* Créditos */}
           <p className="result-credits">
-            Feito por: Nayana Ramos, ...
+            Feito por: Nayana Araújo, Gabriele e Maysa.
           </p>
 
           {/* Botão para reiniciar o quiz */}
