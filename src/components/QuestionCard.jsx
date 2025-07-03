@@ -40,7 +40,7 @@ export default function QuestionCard({ question, onAnswer }) {
               rounded-lg transition
             "
           >
-            {opt}
+            {String.fromCharCode(97 + idx)}) {opt}
           </button>
         ))}
       </div>

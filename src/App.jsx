@@ -14,6 +14,27 @@ const QUESTION_TIME = 30; // segundos por pergunta
 const MULTIPLAYER_STORAGE_KEY = 'quizMultiplayer'; // Chave para dados multiplayer
 const GAME_STATE_KEY = 'quizGameState'; // Chave para estado do jogo
 
+function shuffleArray(array) {
+  const arr = array.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function shuffleQuestionsOptions(questions) {
+  return questions.map(q => {
+    // Cria uma cópia das opções para evitar referência cruzada
+    const optionsCopy = q.options.slice();
+    const options = shuffleArray(optionsCopy);
+    // Encontrar novo índice da resposta correta
+    const correctOption = q.options[q.correctIndex];
+    const newCorrectIndex = options.indexOf(correctOption);
+    return { ...q, options, correctIndex: newCorrectIndex };
+  });
+}
+
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
   const [step, setStep] = useState(0);
@@ -31,6 +52,9 @@ export default function App() {
 
   // Estado ranking apenas para a partida atual
   const [ranking, setRanking] = useState([]);
+
+  // Adicione um estado para as perguntas embaralhadas:
+  const [quizQuestions, setQuizQuestions] = useState([]);
 
   // Função para gerar ID único do jogo
   const generateGameId = () => {
@@ -219,13 +243,15 @@ export default function App() {
     setCurrentPlayerName(playerName);
     setGameMode(mode);
     setIsGameStarted(false);
+    // Embaralhar apenas as opções das perguntas, mantendo a ordem das perguntas
+    const shuffled = shuffleQuestionsOptions(questions);
+    setQuizQuestions(shuffled);
 
     if (mode === 'multiplayer') {
       if (existingGameId) {
         setGameId(existingGameId);
         setCurrentScreen('waiting');
       } else {
-        // Não criar sala se não houver ID válido
         alert('Erro: Código da sala inválido. Tente novamente.');
         return;
       }
@@ -241,16 +267,16 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (currentScreen === 'quiz' && step < questions.length - 1) {
-      if (questions[step + 1].imageUrl) {
+    if (currentScreen === 'quiz' && step < quizQuestions.length - 1) {
+      if (quizQuestions[step + 1].imageUrl) {
         const nextImage = new Image();
-        nextImage.src = questions[step + 1].imageUrl;
+        nextImage.src = quizQuestions[step + 1].imageUrl;
       }
     }
   }, [currentScreen, step]);
 
   useEffect(() => {
-    if (currentScreen !== 'quiz' || step >= questions.length) return;
+    if (currentScreen !== 'quiz' || step >= quizQuestions.length) return;
     if (timeLeft <= 0) {
       handleAnswer(false);
       return;
@@ -263,7 +289,7 @@ export default function App() {
     if (isCorrect) setScore(prev => prev + 1);
     
     const nextStep = step + 1;
-    if (nextStep < questions.length) {
+    if (nextStep < quizQuestions.length) {
       setStep(nextStep);
       setTimeLeft(QUESTION_TIME);
     } else {
@@ -390,7 +416,7 @@ export default function App() {
         </motion.div>
       )}
 
-      {currentScreen === 'quiz' && step < questions.length && (
+      {currentScreen === 'quiz' && step < quizQuestions.length && (
         <motion.div
           key={step}
           initial={{ opacity: 0 }}
@@ -402,10 +428,10 @@ export default function App() {
           }}
         >
           <QuestionScreen
-            question={questions[step]}
+            question={quizQuestions[step]}
             onAnswer={handleAnswer}
             step={step}
-            totalQuestions={questions.length}
+            totalQuestions={quizQuestions.length}
             timeLeft={timeLeft}
             questionTime={QUESTION_TIME}
             gameMode={gameMode}
@@ -430,7 +456,7 @@ export default function App() {
         >
           <Result
             score={score}
-            total={questions.length}
+            total={quizQuestions.length}
             onRestart={restart}
             ranking={sortedRanking}
             gameMode={gameMode}

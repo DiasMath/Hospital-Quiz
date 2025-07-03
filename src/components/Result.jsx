@@ -183,7 +183,7 @@ export default function Result({
           )}
 
           {/* Só mostra o resultado e ranking se ambos terminaram */}
-          {(multiplayerResult && multiplayerResult.type !== 'waiting') && (
+          {(gameMode === 'single' || (multiplayerResult && multiplayerResult.type !== 'waiting')) && (
             <>
               {/* Título com a porcentagem da tentativa atual */}
               <h2 className="result-title">
