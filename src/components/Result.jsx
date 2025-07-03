@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import './Result.css';
 
 /**
@@ -231,12 +232,22 @@ export default function Result({
                 Obrigado por participar!
               </p>
               {/* Frase de motivação aleatória */}
-              <p className="result-motivation">
-                "{phrases[phraseIndex]}"
-              </p>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.p
+                  key={phraseIndex}
+                  className="result-motivation"
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -40 }}
+                  transition={{ duration: 0.5, type: 'spring', stiffness: 80 }}
+                  style={{ position: 'relative' }}
+                >
+                  "{phrases[phraseIndex]}"
+                </motion.p>
+              </AnimatePresence>
               {/* Créditos */}
               <p className="result-credits">
-                Feito por: Nayana Araújo, Gabriele e Maysa.
+                ❤️ Feito por: Nayana Araújo, Gabriele e Maysa.
               </p>
               {/* Botão para reiniciar o quiz */}
               <button
