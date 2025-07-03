@@ -16,6 +16,10 @@ import './QuestionScreen.css'; // Vamos criar este arquivo CSS
  * - totalQuestions: Número total de perguntas
  * - timeLeft: Tempo restante para a pergunta
  * - questionTime: Duração total da pergunta
+ * - gameMode: Modo de jogo ('single' ou 'multiplayer')
+ * - opponentData: Dados do oponente no modo multiplayer
+ * - currentPlayerName: Nome do jogador atual
+ * - score: Pontuação atual do jogador
  */
 export default function QuestionScreen({
   question,
@@ -23,7 +27,11 @@ export default function QuestionScreen({
   step,
   totalQuestions,
   timeLeft,
-  questionTime
+  questionTime,
+  gameMode,
+  opponentData,
+  currentPlayerName,
+  score
 }) {
   const [showContent, setShowContent] = useState(false);
 
@@ -53,32 +61,29 @@ export default function QuestionScreen({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {/* Conteúdo da pergunta, barra de progresso, timer, etc. */}
-          <div className="quiz-wrapper"> {/* Reutiliza o wrapper existente para centralizar o conteúdo */}
-            <div className="quiz-container"> {/* Reutiliza o container existente */}
-              <div className="text-gray-500 text-2xl font-bold mb-2 text-center">
-                {question.phaseText}
-              </div>
-              <div className="quiz-progress">
-                <ProgressBar step={step} total={totalQuestions} />
-                <ClockAnimation timeLeft={timeLeft} duration={questionTime} />
-              </div>
-              <div className="quiz-content">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={step}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <QuestionCard
-                      question={question}
-                      onAnswer={onAnswer}
-                    />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+          <div className="question-card-main">
+            <div className="text-gray-500 text-2xl font-bold mb-2 text-center">
+              {question.phaseText}
+            </div>
+            <div className="quiz-progress">
+              <ProgressBar step={step} total={totalQuestions} />
+              <ClockAnimation timeLeft={timeLeft} duration={questionTime} />
+            </div>
+            <div className="quiz-content">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <QuestionCard
+                    question={question}
+                    onAnswer={onAnswer}
+                  />
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </motion.div>

@@ -12,8 +12,51 @@
 
 /* Container para o conteúdo da pergunta (barra de progresso, card, etc.) */
 .question-content-container {
-    @apply absolute inset-0 flex items-center justify-center z-10; /* Posiciona o conteúdo por cima da imagem */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
+  z-index: 10;
+  position: relative;
 }
 
 /* Reutiliza estilos existentes do quiz (ajuste se necessário) */
-/* .quiz-wrapper e .quiz-container, .quiz-progress, .quiz-content podem ser mantidos como estão ou ajustados */ 
+/* .quiz-wrapper e .quiz-container, .quiz-progress, .quiz-content podem ser mantidos como estão ou ajustados */
+
+.quiz-container {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 2.5rem 2rem 3.5rem 2rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-height: 350px;
+  height: auto;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+}
+
+.question-card-main {
+  background: #fff;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 2.5rem 2rem 3.5rem 2rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-height: 350px;
+  height: auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+} 

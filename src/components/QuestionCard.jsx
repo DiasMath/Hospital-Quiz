@@ -18,8 +18,7 @@ export default function QuestionCard({ question, onAnswer }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       className="
-        bg-white p-6 rounded-2xl shadow-lg
-        w-full h-full flex flex-col overflow-auto
+        p-6 w-full h-full flex flex-col overflow-auto
       "
     >
 

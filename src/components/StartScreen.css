@@ -20,6 +20,11 @@
 .start-screen-wrapper {
     @apply flex items-center justify-center min-h-screen relative;
     flex-direction: column; /* Para alinhar os itens verticalmente */
+    /* Novo fundo hospital cartoon */
+    min-height: 100vh;
+    width: 100vw;
+    position: relative;
+    background: url('/assets/imagem_aguardando_jogador.jpg') center center/cover no-repeat fixed;
 }
 
 /* Estilo para aplicar blur ao fundo */
@@ -33,6 +38,7 @@
     @apply absolute inset-0 w-full h-full;
     object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
     z-index: -1; /* Coloca a imagem atrás de outros elementos */
+    display: none;
   }
 
   /* Caixa centralizada com fundo semi-transparente e blur */
@@ -41,7 +47,18 @@
            rounded-xl p-12 flex flex-col items-center
            border-4 border-yellow-400 space-y-6; /* Adicionado espaço vertical entre os itens */
     z-index: 1; /* Garante que o conteúdo fique acima da imagem de fundo */
-    border-radius: 5rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    padding-left: 3.5rem;
+    padding-right: 3.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    max-width: 540px;
+    width: 95vw;
+    min-width: 0;
+    border-radius: 2.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   
   /* Estilo para a imagem inicial */
@@ -54,14 +71,136 @@
   /* Título grande e em negrito */
   .start-screen-title {
     @apply text-7xl font-extrabold text-gray-800 mb-4; /* Ajustado margem inferior */
+    margin-bottom: 1.8rem;
+    font-size: 3rem;
+    line-height: 3.2rem;
+    white-space: nowrap;
+    text-align: center;
   }
   
   /* Estilo para o campo de nome */
+  .player-name-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 1.5rem;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 0.25rem 1rem;
+    margin-bottom: 1.5rem;
+    width: 340px;
+    max-width: 100%;
+  }
+
+  .player-name-icon {
+    font-size: 1.7rem;
+    margin-right: 0.7rem;
+    color: #bdbdbd;
+  }
+
   .player-name-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1.2rem;
+    flex: 1;
+    padding: 0.7rem 0;
+    color: #222;
+  }
+
+  .player-name-input::placeholder {
+    color: #bdbdbd;
+    opacity: 1;
+  }
+
+  /* Seletor de modo de jogo */
+  .game-mode-selector {
+    @apply w-full text-center;
+    margin-bottom: 2.2rem;
+  }
+
+  .game-mode-selector h3 {
+    @apply text-2xl font-bold text-gray-700 mb-4;
+  }
+
+  .mode-buttons {
+    @apply flex gap-4 justify-center;
+  }
+
+  .mode-button {
+    @apply flex flex-col items-center p-4 rounded-lg border-2 border-gray-300
+           bg-white hover:bg-gray-50 transition duration-200 cursor-pointer;
+    min-width: 150px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .mode-button.active {
+    @apply border-yellow-400 bg-yellow-50;
+  }
+
+  .mode-button:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  }
+
+  .mode-icon {
+    @apply text-3xl mb-2;
+  }
+
+  .mode-text {
+    @apply text-lg font-medium text-gray-700;
+  }
+
+  /* Opções multiplayer */
+  .multiplayer-options {
+    @apply flex gap-4 justify-center w-full;
+    margin-bottom: 2.5rem;
+    gap: 2.2rem;
+  }
+
+  .multiplayer-option {
+    @apply px-4 py-3 rounded-lg border-2 border-gray-300
+           bg-white hover:bg-gray-50 transition duration-200 cursor-pointer
+           text-lg font-medium text-gray-700;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .multiplayer-option.active {
+    @apply border-blue-400 bg-blue-50 text-blue-700;
+  }
+
+  .multiplayer-option:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  }
+
+  /* Seção para entrar em jogo */
+  .join-game-section {
+    @apply w-full;
+  }
+
+  .game-id-input {
     @apply px-4 py-3 text-xl rounded-lg border-2 border-gray-300
-           focus:outline-none focus:border-orange-300 transition duration-200;
-    min-width: 300px; /* Garante uma largura mínima */
-    text-align: center; /* Centraliza o texto digitado */
+           focus:outline-none focus:border-blue-300 transition duration-200 w-full;
+    text-align: center;
+  }
+
+  /* Informações do multiplayer */
+  .multiplayer-info {
+    @apply bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-left;
+    max-width: 500px;
+  }
+
+  .multiplayer-info p {
+    @apply text-lg font-semibold text-blue-800 mb-2;
+  }
+
+  .multiplayer-info ul {
+    @apply text-sm text-blue-700 space-y-1;
+  }
+
+  .multiplayer-info li {
+    @apply list-disc list-inside;
   }
 
   /* Botão com destaque, sombra e hover suave */
@@ -69,8 +208,15 @@
     @apply px-8 py-4 bg-yellow-500 text-white text-xl font-medium
            rounded-lg shadow-lg hover:bg-yellow-400 transition duration-200;
     border-radius: 2rem;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     animation: pulse-yellow 2s infinite; /* Aplica a animação de pulso */
+    margin-top: 2.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.13);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   /* Estilos para o overlay da mensagem de erro */
@@ -90,4 +236,126 @@
     @apply absolute bottom-0 right-0 h-2 bg-red-700; /* Posiciona na parte inferior direita, altura, cor */
     animation: decrease-width 2s linear forwards; /* Aplica a animação, duração igual ao timer do useEffect */
   }
+
+  /* Ilustração temática no topo do card */
+  .start-screen-illustration {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 1.5rem;
+    margin-top: -2.5rem;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.10));
+  }
+
+  /* Frase motivacional abaixo do título */
+  .start-screen-motivation {
+    font-size: 1.35rem;
+    color: #3b3b3b;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Rodapé discreto */
+  .start-screen-footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    color: #888;
+    font-size: 1rem;
+    opacity: 0.85;
+    letter-spacing: 0.01em;
+  }
+
+@media (max-width: 600px) {
+  .start-screen-container {
+    padding: 1.2rem 0.5rem;
+    max-width: 98vw;
+    border-radius: 1.2rem;
+  }
+  .start-screen-title {
+    font-size: 2.2rem;
+    line-height: 2.5rem;
+    white-space: nowrap;
+  }
+  .player-name-input-wrapper {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Modal de instruções de como jogar */
+.how-to-play-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.how-to-play-modal {
+  background: #fff;
+  border-radius: 1.1rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 1.5rem 2rem 1.2rem 2rem;
+  max-width: 98vw;
+  width: 420px;
+  text-align: center;
+  animation: fadeIn 0.3s;
+}
+.how-to-play-modal h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+  color: #f59e42;
+}
+.how-to-play-modal ul {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  color: #444;
+  font-size: 1.08rem;
+  padding-left: 1.2rem;
+}
+.how-to-play-modal ul ul {
+  font-size: 0.98rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
+  list-style-type: disc;
+  padding-left: 1.5em;
+}
+.how-to-play-modal ul ul li {
+  padding: 0.4em 0;
+}
+.how-to-play-ok-btn {
+  background: #fbbf24;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 1.2rem;
+  padding: 0.7rem 2.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  cursor: pointer;
+  transition: background 0.18s, transform 0.15s;
+}
+.how-to-play-ok-btn:hover {
+  background: #f59e42;
+  transform: scale(1.04);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 700px) {
+  .how-to-play-modal {
+    width: 98vw;
+    padding: 1.2rem 0.7rem 1.2rem 0.7rem;
+    border-radius: 0.7rem;
+  }
+}
+
+.multiplayer-options-spacer {
+  height: 0.7rem;
+}
   

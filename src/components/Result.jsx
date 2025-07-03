@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Result.css';
 
 /**
@@ -9,10 +9,88 @@ import './Result.css';
  * - total: total de perguntas
  * - onRestart: callback para reiniciar o quiz
  * - ranking: Array de objetos com { name, score, time } de todos os resultados
+ * - gameMode: Modo de jogo ('single' ou 'multiplayer')
+ * - opponentData: Dados do oponente no modo multiplayer
+ * - currentPlayerName: Nome do jogador atual
  */
-export default function Result({ score, total, onRestart, ranking }) {
+export default function Result({ 
+  score, 
+  total, 
+  onRestart, 
+  ranking, 
+  gameMode, 
+  opponentData, 
+  currentPlayerName,
+  quizStartTime,
+  quizEndTime
+}) {
   // Calcula a porcentagem de acertos (arredondada para inteiro) da tentativa atual
   const percent = Math.round((score / total) * 100);
+
+  // Determina o resultado do multiplayer
+  const getMultiplayerResult = () => {
+    if (gameMode !== 'multiplayer' || !opponentData) return null;
+    
+    const currentScore = score;
+    const opponentScore = opponentData.score;
+    const currentTime = quizEndTime && quizStartTime ? Math.round((quizEndTime - quizStartTime) / 1000) : 0;
+    const opponentTime = opponentData.quizEndTime && opponentData.quizStartTime ? 
+      Math.round((opponentData.quizEndTime - opponentData.quizStartTime) / 1000) : 0;
+    
+    // Determinar vencedor baseado em score e tempo
+    let isWinner = false;
+    if (currentScore > opponentScore) {
+      isWinner = true;
+    } else if (currentScore === opponentScore) {
+      isWinner = currentTime < opponentTime;
+    }
+    
+    if (isWinner) {
+      return { type: 'winner', message: '🎉 Parabéns! Você venceu!' };
+    } else if (currentScore === opponentScore && currentTime === opponentTime) {
+      return { type: 'tie', message: '🤝 Empate! Ambos tiveram a mesma pontuação e tempo!' };
+    } else {
+      return { type: 'loser', message: '😔 Que pena! Você perdeu!' };
+    }
+  };
+
+  const multiplayerResult = getMultiplayerResult();
+
+  // Calcular tempo do oponente para o ranking
+  let opponentTime = 0;
+  if (gameMode === 'multiplayer' && opponentData) {
+    if (opponentData.quizEndTime && opponentData.quizStartTime) {
+      opponentTime = Math.round((opponentData.quizEndTime - opponentData.quizStartTime) / 1000);
+    }
+  }
+
+  // Calcular tempo do jogador atual
+  const currentPlayerTime = quizEndTime && quizStartTime ? Math.round((quizEndTime - quizStartTime) / 1000) : 0;
+
+  // Ordenar jogadores por ranking (mais acertos em menos tempo)
+  const getRankedPlayers = () => {
+    if (gameMode !== 'multiplayer' || !opponentData) {
+      return [
+        { name: currentPlayerName, score, time: currentPlayerTime, isCurrent: true }
+      ];
+    }
+
+    const players = [
+      { name: currentPlayerName, score, time: currentPlayerTime, isCurrent: true },
+      { name: opponentData.playerName, score: opponentData.score, time: opponentTime, isCurrent: false }
+    ];
+
+    // Ordenar por score (maior primeiro) e depois por tempo (menor primeiro)
+    return players.sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      } else {
+        return a.time - b.time;
+      }
+    });
+  };
+
+  const rankedPlayers = getRankedPlayers();
 
   // Lista com 25 frases de motivação
   const phrases = [
@@ -43,8 +121,15 @@ export default function Result({ score, total, onRestart, ranking }) {
     "Tenha fé no processo e desfrute cada etapa."
   ];
 
-  // Seleciona uma frase aleatória
-  const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+  // Estado para frase motivacional animada
+  const [phraseIndex, setPhraseIndex] = useState(Math.floor(Math.random() * phrases.length));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIndex((prev) => (prev + 1) % phrases.length);
+    }, 3000); // 2 segundos
+    return () => clearInterval(interval);
+  }, [phrases.length]);
 
   return (
     <div className="result-container">
@@ -59,6 +144,14 @@ export default function Result({ score, total, onRestart, ranking }) {
       <div className="result-content">
         {/* Caixa com blur */}
         <div className="result-blur-box">
+          
+          {/* Resultado do multiplayer */}
+          {multiplayerResult && (
+            <div className={`multiplayer-result ${multiplayerResult.type}`} style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '2.2rem', fontWeight: 'bold', margin: 0 }}>{multiplayerResult.message}</h3>
+            </div>
+          )}
+
           {/* Título com a porcentagem da tentativa atual */}
           <h2 className="result-title">
             Você acertou {percent}% das questões!
@@ -66,47 +159,40 @@ export default function Result({ score, total, onRestart, ranking }) {
 
           {/* Ranking Table com scroll */}
           <div className="result-table-container">
-            {ranking.length > 0 ? (
-              <table className="result-table">
-                <thead className="result-table-header">
-                  <tr className="result-table-header-row">
-                    <th className="result-table-header-cell result-table-cell-center">Ranking</th>
-                    <th className="result-table-header-cell">Jogador</th>
-                    <th className="result-table-header-cell result-table-cell-center">Acertos</th>
-                    <th className="result-table-header-cell result-table-cell-right">Tempo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ranking.map((entry, index) => (
-                    <tr 
-                      key={index} 
-                      className={`
-                        result-table-row
-                        ${index === 0 ? 'result-table-row-first' : ''}
-                        ${index === 1 ? 'result-table-row-second' : ''}
-                        ${index === 2 ? 'result-table-row-third' : ''}
-                      `}
-                    >
+            <table className="result-table">
+              <thead className="result-table-header">
+                <tr className="result-table-header-row">
+                  <th className="result-table-header-cell result-table-cell-center">Ranking</th>
+                  <th className="result-table-header-cell">Jogador</th>
+                  <th className="result-table-header-cell result-table-cell-center">Acertos</th>
+                  <th className="result-table-header-cell result-table-cell-right">Tempo</th>
+                  {gameMode === 'multiplayer' && (
+                    <th className="result-table-header-cell result-table-cell-center">Modo</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {rankedPlayers.map((player, index) => (
+                  <tr key={player.name} className={`result-table-row ${index === 0 ? 'result-table-row-first' : 'result-table-row-second'}`}>
+                    <td className="result-table-cell result-table-cell-center">
+                      <span className={index === 0 ? 'result-rank-first' : 'result-rank-second'}>
+                        {index + 1}º
+                      </span>
+                    </td>
+                    <td className="result-table-cell">{player.name}</td>
+                    <td className="result-table-cell result-table-cell-center">{player.score}</td>
+                    <td className="result-table-cell result-table-cell-right">
+                      {player.time}s
+                    </td>
+                    {gameMode === 'multiplayer' && (
                       <td className="result-table-cell result-table-cell-center">
-                        <span className={`
-                          ${index === 0 ? 'result-rank-first' : ''}
-                          ${index === 1 ? 'result-rank-second' : ''}
-                          ${index === 2 ? 'result-rank-third' : ''}
-                          ${index > 2 ? 'result-rank-other' : ''}
-                        `}>
-                          {index + 1}º
-                        </span>
+                        {gameMode === 'multiplayer' ? '🏆' : '👤'}
                       </td>
-                      <td className="result-table-cell">{entry.name}</td>
-                      <td className="result-table-cell result-table-cell-center">{entry.score}</td>
-                      <td className="result-table-cell result-table-cell-right">{entry.time}s</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-center text-gray-600 py-8">Nenhum resultado registrado ainda.</p>
-            )}
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {/* Mensagem de agradecimento maior */}
@@ -116,7 +202,7 @@ export default function Result({ score, total, onRestart, ranking }) {
 
           {/* Frase de motivação aleatória */}
           <p className="result-motivation">
-            "{randomPhrase}"
+            "{phrases[phraseIndex]}"
           </p>
 
           {/* Créditos */}
