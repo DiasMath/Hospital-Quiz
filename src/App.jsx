@@ -211,24 +211,6 @@ export default function App() {
     }
   }, [gameMode, countdown, gameStartTime]);
 
-  // Efeito para verificar se o oponente terminou primeiro
-  useEffect(() => {
-    if (gameMode === 'multiplayer' && opponentData && opponentData.isFinished && currentScreen !== 'result') {
-      // Oponente terminou primeiro
-      const endTime = Date.now();
-      const totalTime = Math.round((endTime - quizStartTime) / 1000);
-      
-      setQuizEndTime(endTime);
-      
-      setRanking(prevRanking => [
-        ...prevRanking,
-        { name: currentPlayerName, score, time: totalTime, gameMode: 'multiplayer' }
-      ]);
-      
-      setCurrentScreen('result');
-    }
-  }, [opponentData, gameMode, currentScreen]);
-
   const handleStart = (playerName, mode = 'single', existingGameId = null) => {
     setStep(0);
     setScore(0);

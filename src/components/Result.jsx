@@ -30,21 +30,22 @@ export default function Result({
   // Determina o resultado do multiplayer
   const getMultiplayerResult = () => {
     if (gameMode !== 'multiplayer' || !opponentData) return null;
-    
+    // Se o oponente não terminou, mostrar mensagem de aguardo
+    if (!opponentData.quizEndTime) {
+      return { type: 'waiting', message: '⏳ Aguardando o outro jogador terminar...' };
+    }
+    // Ambos terminaram, mostrar resultado real
     const currentScore = score;
     const opponentScore = opponentData.score;
     const currentTime = quizEndTime && quizStartTime ? Math.round((quizEndTime - quizStartTime) / 1000) : 0;
     const opponentTime = opponentData.quizEndTime && opponentData.quizStartTime ? 
       Math.round((opponentData.quizEndTime - opponentData.quizStartTime) / 1000) : 0;
-    
-    // Determinar vencedor baseado em score e tempo
     let isWinner = false;
     if (currentScore > opponentScore) {
       isWinner = true;
     } else if (currentScore === opponentScore) {
       isWinner = currentTime < opponentTime;
     }
-    
     if (isWinner) {
       return { type: 'winner', message: '🎉 Parabéns! Você venceu!' };
     } else if (currentScore === opponentScore && currentTime === opponentTime) {
@@ -57,7 +58,7 @@ export default function Result({
   const multiplayerResult = getMultiplayerResult();
 
   // Calcular tempo do oponente para o ranking
-  let opponentTime = 0;
+  let opponentTime = null;
   if (gameMode === 'multiplayer' && opponentData) {
     if (opponentData.quizEndTime && opponentData.quizStartTime) {
       opponentTime = Math.round((opponentData.quizEndTime - opponentData.quizStartTime) / 1000);
@@ -67,6 +68,29 @@ export default function Result({
   // Calcular tempo do jogador atual
   const currentPlayerTime = quizEndTime && quizStartTime ? Math.round((quizEndTime - quizStartTime) / 1000) : 0;
 
+  // Adicione o estado para o tempo em tempo real do oponente:
+  const [opponentLiveTime, setOpponentLiveTime] = useState(null);
+
+  // Atualize o tempo em tempo real do oponente se ele ainda não terminou
+  useEffect(() => {
+    if (
+      gameMode === 'multiplayer' &&
+      opponentData &&
+      opponentData.quizStartTime &&
+      !opponentData.quizEndTime
+    ) {
+      // Atualiza a cada segundo
+      const interval = setInterval(() => {
+        setOpponentLiveTime(Math.round((Date.now() - opponentData.quizStartTime) / 1000));
+      }, 1000);
+      // Inicializa imediatamente
+      setOpponentLiveTime(Math.round((Date.now() - opponentData.quizStartTime) / 1000));
+      return () => clearInterval(interval);
+    } else {
+      setOpponentLiveTime(null);
+    }
+  }, [gameMode, opponentData]);
+
   // Ordenar jogadores por ranking (mais acertos em menos tempo)
   const getRankedPlayers = () => {
     if (gameMode !== 'multiplayer' || !opponentData) {
@@ -74,10 +98,13 @@ export default function Result({
         { name: currentPlayerName, score, time: currentPlayerTime, isCurrent: true }
       ];
     }
-
+    let opponentDisplayTime = opponentTime;
+    if (opponentTime === null && opponentLiveTime !== null) {
+      opponentDisplayTime = opponentLiveTime;
+    }
     const players = [
       { name: currentPlayerName, score, time: currentPlayerTime, isCurrent: true },
-      { name: opponentData.playerName, score: opponentData.score, time: opponentTime, isCurrent: false }
+      { name: opponentData.playerName, score: opponentData.score, time: opponentTime === null && opponentLiveTime === null ? null : opponentDisplayTime, isCurrent: false, isInProgress: opponentTime === null }
     ];
 
     // Ordenar por score (maior primeiro) e depois por tempo (menor primeiro)
@@ -85,6 +112,9 @@ export default function Result({
       if (b.score !== a.score) {
         return b.score - a.score;
       } else {
+        // Se tempo for null, considera como infinito (ainda em andamento)
+        if (a.time === null) return 1;
+        if (b.time === null) return -1;
         return a.time - b.time;
       }
     });
@@ -152,71 +182,71 @@ export default function Result({
             </div>
           )}
 
-          {/* Título com a porcentagem da tentativa atual */}
-          <h2 className="result-title">
-            Você acertou {percent}% das questões!
-          </h2>
-
-          {/* Ranking Table com scroll */}
-          <div className="result-table-container">
-            <table className="result-table">
-              <thead className="result-table-header">
-                <tr className="result-table-header-row">
-                  <th className="result-table-header-cell result-table-cell-center">Ranking</th>
-                  <th className="result-table-header-cell">Jogador</th>
-                  <th className="result-table-header-cell result-table-cell-center">Acertos</th>
-                  <th className="result-table-header-cell result-table-cell-right">Tempo</th>
-                  {gameMode === 'multiplayer' && (
-                    <th className="result-table-header-cell result-table-cell-center">Modo</th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {rankedPlayers.map((player, index) => (
-                  <tr key={player.name} className={`result-table-row ${index === 0 ? 'result-table-row-first' : 'result-table-row-second'}`}>
-                    <td className="result-table-cell result-table-cell-center">
-                      <span className={index === 0 ? 'result-rank-first' : 'result-rank-second'}>
-                        {index + 1}º
-                      </span>
-                    </td>
-                    <td className="result-table-cell">{player.name}</td>
-                    <td className="result-table-cell result-table-cell-center">{player.score}</td>
-                    <td className="result-table-cell result-table-cell-right">
-                      {player.time}s
-                    </td>
-                    {gameMode === 'multiplayer' && (
-                      <td className="result-table-cell result-table-cell-center">
-                        {gameMode === 'multiplayer' ? '🏆' : '👤'}
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mensagem de agradecimento maior */}
-          <p className="result-thank-you">
-            Obrigado por participar!
-          </p>
-
-          {/* Frase de motivação aleatória */}
-          <p className="result-motivation">
-            "{phrases[phraseIndex]}"
-          </p>
-
-          {/* Créditos */}
-          <p className="result-credits">
-            Feito por: Nayana Araújo, Gabriele e Maysa.
-          </p>
-
-          {/* Botão para reiniciar o quiz */}
-          <button
-            onClick={onRestart}
-            className="result-button"
-          >
-            Reiniciar Quiz
-          </button>
+          {/* Só mostra o resultado e ranking se ambos terminaram */}
+          {(multiplayerResult && multiplayerResult.type !== 'waiting') && (
+            <>
+              {/* Título com a porcentagem da tentativa atual */}
+              <h2 className="result-title">
+                Você acertou {percent}% das questões!
+              </h2>
+              {/* Ranking Table com scroll */}
+              <div className="result-table-container">
+                <table className="result-table">
+                  <thead className="result-table-header">
+                    <tr className="result-table-header-row">
+                      <th className="result-table-header-cell result-table-cell-center">Ranking</th>
+                      <th className="result-table-header-cell">Jogador</th>
+                      <th className="result-table-header-cell result-table-cell-center">Acertos</th>
+                      <th className="result-table-header-cell result-table-cell-right">Tempo</th>
+                      {gameMode === 'multiplayer' && (
+                        <th className="result-table-header-cell result-table-cell-center">Modo</th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rankedPlayers.map((player, index) => (
+                      <tr key={player.name} className={`result-table-row ${index === 0 ? 'result-table-row-first' : 'result-table-row-second'}`}>
+                        <td className="result-table-cell result-table-cell-center">
+                          <span className={index === 0 ? 'result-rank-first' : 'result-rank-second'}>
+                            {index + 1}º
+                          </span>
+                        </td>
+                        <td className="result-table-cell">{player.name}</td>
+                        <td className="result-table-cell result-table-cell-center">{player.score}</td>
+                        <td className="result-table-cell result-table-cell-right">
+                          {player.time === null ? 'Em andamento' : `${player.time}s`}
+                        </td>
+                        {gameMode === 'multiplayer' && (
+                          <td className="result-table-cell result-table-cell-center">
+                            {gameMode === 'multiplayer' ? '🏆' : '👤'}
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* Mensagem de agradecimento maior */}
+              <p className="result-thank-you">
+                Obrigado por participar!
+              </p>
+              {/* Frase de motivação aleatória */}
+              <p className="result-motivation">
+                "{phrases[phraseIndex]}"
+              </p>
+              {/* Créditos */}
+              <p className="result-credits">
+                Feito por: Nayana Araújo, Gabriele e Maysa.
+              </p>
+              {/* Botão para reiniciar o quiz */}
+              <button
+                onClick={onRestart}
+                className="result-button"
+              >
+                Reiniciar Quiz
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
