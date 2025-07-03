@@ -215,7 +215,7 @@ export default function Result({
                         <td className="result-table-cell">{player.name}</td>
                         <td className="result-table-cell result-table-cell-center">{player.score}</td>
                         <td className="result-table-cell result-table-cell-right">
-                          {player.time === null ? 'Em andamento' : `${player.time}s`}
+                          {`${player.time}s`}
                         </td>
                         {gameMode === 'multiplayer' && (
                           <td className="result-table-cell result-table-cell-center">
