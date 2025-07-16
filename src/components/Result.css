@@ -18,6 +18,8 @@
   @apply text-5xl font-bold mb-8 text-center text-black;
 }
 
+
+
 .result-table-container {
   @apply w-full max-w-2xl max-h-[300px] overflow-y-auto rounded-lg shadow-lg bg-white bg-opacity-95 mx-auto p-0;
 

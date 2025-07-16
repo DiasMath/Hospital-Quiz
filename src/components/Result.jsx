@@ -23,7 +23,8 @@ export default function Result({
   opponentData, 
   currentPlayerName,
   quizStartTime,
-  quizEndTime
+  quizEndTime,
+  urgentQuestionCorrect
 }) {
   // Calcula a porcentagem de acertos (arredondada para inteiro) da tentativa atual
   const percent = Math.round((score / total) * 100);
@@ -190,6 +191,8 @@ export default function Result({
               <h2 className="result-title">
                 Você acertou {percent}% das questões!
               </h2>
+
+
               {/* Ranking Table com scroll */}
               <div className="result-table-container">
                 <table className="result-table">
@@ -198,6 +201,7 @@ export default function Result({
                       <th className="result-table-header-cell result-table-cell-center">Ranking</th>
                       <th className="result-table-header-cell">Jogador</th>
                       <th className="result-table-header-cell result-table-cell-center">Acertos</th>
+                      <th className="result-table-header-cell result-table-cell-center">Pergunta Surpresa</th>
                       <th className="result-table-header-cell result-table-cell-right">Tempo</th>
                       {gameMode === 'multiplayer' && (
                         <th className="result-table-header-cell result-table-cell-center">Modo</th>
@@ -214,6 +218,11 @@ export default function Result({
                         </td>
                         <td className="result-table-cell">{player.name}</td>
                         <td className="result-table-cell result-table-cell-center">{player.score}</td>
+                        <td className="result-table-cell result-table-cell-center">
+                          {player.isCurrent && urgentQuestionCorrect !== null ? (
+                            urgentQuestionCorrect ? '✅' : '❌'
+                          ) : '-'}
+                        </td>
                         <td className="result-table-cell result-table-cell-right">
                           {`${player.time}s`}
                         </td>

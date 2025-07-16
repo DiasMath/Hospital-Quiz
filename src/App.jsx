@@ -9,6 +9,7 @@ import ProgressBar from './components/ProgressBar';
 import ClockAnimation from './components/ClockAnimation';
 import './App.css';
 import QuestionScreen from './components/QuestionScreen';
+import UrgentQuestionScreen from './components/UrgentQuestionScreen';
 
 const QUESTION_TIME = 30; // segundos por pergunta
 const MULTIPLAYER_STORAGE_KEY = 'quizMultiplayer'; // Chave para dados multiplayer
@@ -55,6 +56,9 @@ export default function App() {
 
   // Adicione um estado para as perguntas embaralhadas:
   const [quizQuestions, setQuizQuestions] = useState([]);
+
+  // Estado para rastrear se acertou a pergunta urgente
+  const [urgentQuestionCorrect, setUrgentQuestionCorrect] = useState(null);
 
   // Função para gerar ID único do jogo
   const generateGameId = () => {
@@ -243,6 +247,7 @@ export default function App() {
     setCurrentPlayerName(playerName);
     setGameMode(mode);
     setIsGameStarted(false);
+    setUrgentQuestionCorrect(null); // Resetar estado da pergunta urgente
     // Embaralhar apenas as opções das perguntas, mantendo a ordem das perguntas
     const shuffled = shuffleQuestionsOptions(questions);
     setQuizQuestions(shuffled);
@@ -286,6 +291,11 @@ export default function App() {
   }, [timeLeft, currentScreen, step]);
 
   const handleAnswer = (isCorrect) => {
+    // Verificar se é a pergunta urgente (índice 2, que é a terceira pergunta)
+    if (step === 2 && quizQuestions[step] && quizQuestions[step].isUrgent) {
+      setUrgentQuestionCorrect(isCorrect);
+    }
+    
     if (isCorrect) setScore(prev => prev + 1);
     
     const nextStep = step + 1;
@@ -328,6 +338,7 @@ export default function App() {
     setGameStartTime(null);
     setCountdown(null);
     setRanking([]); // Limpar ranking da partida atual
+    setUrgentQuestionCorrect(null); // Resetar estado da pergunta urgente
   };
 
   const sortedRanking = [...ranking].sort((a, b) => {
@@ -427,18 +438,33 @@ export default function App() {
             ease: "easeInOut"
           }}
         >
-          <QuestionScreen
-            question={quizQuestions[step]}
-            onAnswer={handleAnswer}
-            step={step}
-            totalQuestions={quizQuestions.length}
-            timeLeft={timeLeft}
-            questionTime={QUESTION_TIME}
-            gameMode={gameMode}
-            opponentData={opponentData}
-            currentPlayerName={currentPlayerName}
-            score={score}
-          />
+          {quizQuestions[step].isUrgent ? (
+            <UrgentQuestionScreen
+              question={quizQuestions[step]}
+              onAnswer={handleAnswer}
+              step={step}
+              totalQuestions={quizQuestions.length}
+              timeLeft={timeLeft}
+              questionTime={QUESTION_TIME}
+              gameMode={gameMode}
+              opponentData={opponentData}
+              currentPlayerName={currentPlayerName}
+              score={score}
+            />
+          ) : (
+            <QuestionScreen
+              question={quizQuestions[step]}
+              onAnswer={handleAnswer}
+              step={step}
+              totalQuestions={quizQuestions.length}
+              timeLeft={timeLeft}
+              questionTime={QUESTION_TIME}
+              gameMode={gameMode}
+              opponentData={opponentData}
+              currentPlayerName={currentPlayerName}
+              score={score}
+            />
+          )}
         </motion.div>
       )}
 
@@ -464,6 +490,7 @@ export default function App() {
             currentPlayerName={currentPlayerName}
             quizStartTime={quizStartTime}
             quizEndTime={quizEndTime}
+            urgentQuestionCorrect={urgentQuestionCorrect}
           />
         </motion.div>
       )}

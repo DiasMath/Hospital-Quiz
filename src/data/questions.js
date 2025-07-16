@@ -24,6 +24,19 @@ const questions = [
     imageUrl: "/assets/question_02.jpg",
   },
   {
+    phaseText: "URGENTE: Pergunta Surpresa",
+    question: "O paciente precisa tomar um remédio. Dentre os remédios abaixo, escolha qual o paciente deve tomar:",
+    options: [
+      "Dipirona 500mg - para dor de cabeça",
+      "Paracetamol 750mg - para febre alta",
+      "Ibuprofeno 600mg - para inflamação",
+      "Omeprazol 20mg - para proteção gástrica"
+    ],
+    correctIndex: 1,
+    imageUrl: "/assets/question_03.jpg",
+    isUrgent: true, // Marca esta pergunta como urgente
+  },
+  {
     phaseText: "Fase 3: Intraoperatório/Transoperatório (durante a cirurgia)",
     question: "No centro cirúrgico, o técnico de enfermagem circulante é responsável por:",
     options: [
