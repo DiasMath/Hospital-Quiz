@@ -42,16 +42,31 @@ export default function Result({
     const currentTime = quizEndTime && quizStartTime ? Math.round((quizEndTime - quizStartTime) / 1000) : 0;
     const opponentTime = opponentData.quizEndTime && opponentData.quizStartTime ? 
       Math.round((opponentData.quizEndTime - opponentData.quizStartTime) / 1000) : 0;
+    
     let isWinner = false;
+    
+    // 1. Primeiro critério: Quantidade de acertos
     if (currentScore > opponentScore) {
       isWinner = true;
     } else if (currentScore === opponentScore) {
-      isWinner = currentTime < opponentTime;
+      // 2. Segundo critério: Acertou a pergunta surpresa
+      const currentUrgentCorrect = urgentQuestionCorrect;
+      const opponentUrgentCorrect = opponentData.urgentQuestionCorrect;
+      
+      if (currentUrgentCorrect !== opponentUrgentCorrect) {
+        isWinner = currentUrgentCorrect;
+      } else {
+        // 3. Terceiro critério: Menor tempo
+        isWinner = currentTime < opponentTime;
+      }
     }
+    
     if (isWinner) {
       return { type: 'winner', message: '🎉 Parabéns! Você venceu!' };
-    } else if (currentScore === opponentScore && currentTime === opponentTime) {
-      return { type: 'tie', message: '🤝 Empate! Ambos tiveram a mesma pontuação e tempo!' };
+    } else if (currentScore === opponentScore && 
+               urgentQuestionCorrect === opponentData.urgentQuestionCorrect && 
+               currentTime === opponentTime) {
+      return { type: 'tie', message: '🤝 Empate! Ambos tiveram a mesma pontuação, pergunta surpresa e tempo!' };
     } else {
       return { type: 'loser', message: '😔 Que pena! Você perdeu!' };
     }
@@ -109,16 +124,27 @@ export default function Result({
       { name: opponentData.playerName, score: opponentData.score, time: opponentTime === null && opponentLiveTime === null ? null : opponentDisplayTime, isCurrent: false, isInProgress: opponentTime === null }
     ];
 
-    // Ordenar por score (maior primeiro) e depois por tempo (menor primeiro)
+    // Ordenar por score (maior primeiro), depois por pergunta surpresa, depois por tempo (menor primeiro)
     return players.sort((a, b) => {
+      // 1. Primeiro critério: Quantidade de acertos (maior primeiro)
       if (b.score !== a.score) {
         return b.score - a.score;
-      } else {
-        // Se tempo for null, considera como infinito (ainda em andamento)
-        if (a.time === null) return 1;
-        if (b.time === null) return -1;
-        return a.time - b.time;
       }
+      
+      // 2. Segundo critério: Acertou a pergunta surpresa
+      const aUrgentCorrect = a.isCurrent ? urgentQuestionCorrect : (opponentData && opponentData.urgentQuestionCorrect);
+      const bUrgentCorrect = b.isCurrent ? urgentQuestionCorrect : (opponentData && opponentData.urgentQuestionCorrect);
+      
+      // Se um acertou e outro não, quem acertou tem prioridade
+      if (aUrgentCorrect !== bUrgentCorrect) {
+        return aUrgentCorrect ? -1 : 1;
+      }
+      
+      // 3. Terceiro critério: Menor tempo
+      // Se tempo for null, considera como infinito (ainda em andamento)
+      if (a.time === null) return 1;
+      if (b.time === null) return -1;
+      return a.time - b.time;
     });
   };
 
