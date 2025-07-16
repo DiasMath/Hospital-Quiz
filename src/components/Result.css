@@ -149,4 +149,10 @@
   border-radius: 2rem;
   font-size: 1.5rem;
   animation: pulse-yellow 2s infinite;
+}
+
+/* Estilo para a pergunta surpresa no resultado */
+.urgent-cell {
+  font-size: 1.5rem;
+  font-weight: bold;
 } 

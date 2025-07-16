@@ -63,7 +63,7 @@
   max-width: 800px;
   width: 100%;
   text-align: center;
-  animation: urgentCardPulse 2s ease-in-out infinite;
+  animation: urgentCardPulse 2s ease-in-out infinite, emergencyShake 1.5s ease-in-out infinite;
 }
 
 @keyframes urgentCardPulse {
@@ -94,6 +94,28 @@
   margin-bottom: 20px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   letter-spacing: 2px;
+  color: #dc2626 !important;
+  animation: emergencyShake 0.5s ease-in-out infinite, emergencyBlink 1s ease-in-out infinite;
+}
+
+@keyframes emergencyShake {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes emergencyBlink {
+  0%, 50% {
+    color: #dc2626 !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(220, 38, 38, 0.8);
+  }
+  25%, 75% {
+    color: #ef4444 !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(239, 68, 68, 0.5);
+  }
 }
 
 .quiz-progress {

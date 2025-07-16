@@ -70,21 +70,10 @@ export default function UrgentQuestionScreen({
               </motion.div>
             </div>
 
-            {/* Título pulsante */}
-            <motion.div 
-              className="urgent-phase-text"
-              animate={{
-                scale: [1, 1.05, 1],
-                color: ["#ff0000", "#ff4444", "#ff0000"]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
+            {/* Título com animação de emergência */}
+            <div className="urgent-phase-text">
               {question.phaseText}
-            </motion.div>
+            </div>
 
             <div className="quiz-progress">
               <ProgressBar step={step} total={totalQuestions} />

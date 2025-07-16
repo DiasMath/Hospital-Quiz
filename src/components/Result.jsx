@@ -219,9 +219,20 @@ export default function Result({
                         <td className="result-table-cell">{player.name}</td>
                         <td className="result-table-cell result-table-cell-center">{player.score}</td>
                         <td className="result-table-cell result-table-cell-center">
-                          {player.isCurrent && urgentQuestionCorrect !== null ? (
-                            urgentQuestionCorrect ? '✅' : '❌'
-                          ) : '-'}
+                          {player.isCurrent ? (
+                            urgentQuestionCorrect !== null ? (
+                              <span className="urgent-cell">
+                                {urgentQuestionCorrect ? '✅' : '❌'}
+                              </span>
+                            ) : '-'
+                          ) : (
+                            // Para o oponente, usar os dados do opponentData
+                            opponentData && opponentData.urgentQuestionCorrect !== null ? (
+                              <span className="urgent-cell">
+                                {opponentData.urgentQuestionCorrect ? '✅' : '❌'}
+                              </span>
+                            ) : '-'
+                          )}
                         </td>
                         <td className="result-table-cell result-table-cell-right">
                           {`${player.time}s`}

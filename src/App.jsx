@@ -105,7 +105,8 @@ export default function App() {
       isFinished: currentScreen === 'result',
       isWaiting: currentScreen === 'waiting',
       gameStartTime: gameStartTime,
-      countdown: countdown
+      countdown: countdown,
+      urgentQuestionCorrect: urgentQuestionCorrect
     };
 
     saveGameState(currentState);
