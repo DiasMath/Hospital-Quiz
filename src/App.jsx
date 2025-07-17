@@ -10,7 +10,7 @@ import ClockAnimation from './components/ClockAnimation';
 import './App.css';
 import QuestionScreen from './components/QuestionScreen';
 import UrgentQuestionScreen from './components/UrgentQuestionScreen';
-import { listenRoom, updatePlayerProgress, updateQuizStep, finishPlayer } from './firebaseRooms';
+import { listenRoom, updatePlayerProgress, updateQuizStep, finishPlayer, setPreGameStartTime } from './firebaseRooms';
 
 const QUESTION_TIME = 30; // segundos por pergunta
 const MULTIPLAYER_STORAGE_KEY = 'quizMultiplayer'; // Chave para dados multiplayer
@@ -60,6 +60,10 @@ export default function App() {
 
   // Estado para rastrear se acertou a pergunta urgente
   const [urgentQuestionCorrect, setUrgentQuestionCorrect] = useState(null);
+
+  // Adicione o state para o pré-jogo
+  const [preGameStartTime, setPreGameStartTimeState] = useState(null);
+  const [preGameCountdown, setPreGameCountdown] = useState(null);
 
   // Adicione um estado para o snapshot da sala
   const [roomSnapshot, setRoomSnapshot] = useState(null);
@@ -270,9 +274,9 @@ export default function App() {
     if (gameMode === 'multiplayer' && gameId && currentPlayerName) {
       const unsubscribe = listenRoom(gameId, (room) => {
         setRoomSnapshot(room);
-        // Sincronizar step global
-        if (room && room.quizStep !== undefined && step !== room.quizStep) {
-          setStep(room.quizStep);
+        // Sincronizar step individual do jogador
+        if (room && room.players && room.players[currentPlayerName] && typeof room.players[currentPlayerName].step === 'number' && step !== room.players[currentPlayerName].step) {
+          setStep(room.players[currentPlayerName].step);
         }
         // Sincronizar score do oponente
         if (room && room.players) {
@@ -289,14 +293,18 @@ export default function App() {
           setCurrentScreen('quiz');
           setIsGameStarted(true);
         }
-        // Se este jogador terminou, mas o outro não, mostrar tela de aguardo
+        // Substitua a lógica de transição de tela para resultado:
         if (room && room.players && room.players[currentPlayerName] && room.players[currentPlayerName].finished) {
           setFinished(true);
+          // Debug: mostrar estado dos jogadores
+          console.log('room.players:', room.players);
+          console.log('currentPlayerName:', currentPlayerName);
+          console.log('finished flags:', Object.values(room.players).map(p => p.finished));
           // Só mostra resultado se ambos terminaram
           const allFinished = Object.values(room.players).every(p => p.finished);
-          if (allFinished && currentScreen !== 'result') {
+          if (allFinished) {
             setCurrentScreen('result');
-          } else if (!allFinished && currentScreen !== 'waiting_result') {
+          } else {
             setCurrentScreen('waiting_result');
           }
         }
@@ -321,8 +329,7 @@ export default function App() {
       if (!roomSnapshot.preGameStartTime) {
         const startTime = Date.now() + 3000;
         updateQuizStep(gameId, roomSnapshot.quizStep || 0); // Garante quizStep
-        // Salva o horário de início da contagem no Firebase
-        finishPlayer(gameId, 'preGameStartTime', { preGameStartTime: startTime });
+        setPreGameStartTimeState(startTime); // Corrigido para salvar no nó da sala
       }
     }
   }, [gameMode, gameId, roomSnapshot, currentScreen]);
@@ -335,7 +342,7 @@ export default function App() {
       roomSnapshot.preGameStartTime &&
       currentScreen === 'waiting'
     ) {
-      setPreGameStartTime(roomSnapshot.preGameStartTime);
+      setPreGameStartTimeState(roomSnapshot.preGameStartTime);
       setPreGameCountdown(3);
       setCurrentScreen('pre_game_countdown');
     }
@@ -352,7 +359,7 @@ export default function App() {
           setCurrentScreen('quiz');
           setIsGameStarted(true);
           setPreGameCountdown(null);
-          setPreGameStartTime(null);
+          setPreGameStartTimeState(null);
           clearInterval(interval);
         }
       }, 100);
@@ -417,14 +424,29 @@ export default function App() {
       // Atualiza score e step do jogador
       const newScore = isCorrect ? score + 1 : score;
       updatePlayerProgress(gameId, currentPlayerName, { score: newScore, step: step + 1 });
-      // Atualiza step global para ambos avançarem juntos
-      updateQuizStep(gameId, step + 1);
       setScore(newScore);
       setStep(step + 1);
       setTimeLeft(QUESTION_TIME);
       // Se for última pergunta, marcar como finalizado
       if (step + 1 >= quizQuestions.length) {
-        finishPlayer(gameId, currentPlayerName, { score: newScore });
+        const endTime = Date.now();
+        setQuizEndTime(endTime);
+        setRanking(prevRanking => [
+          ...prevRanking,
+          {
+            name: currentPlayerName,
+            score: newScore,
+            time: quizStartTime ? Math.round((endTime - quizStartTime) / 1000) : 0,
+            gameMode: gameMode,
+            gameId: gameId
+          }
+        ]);
+        // Salvar quizEndTime e urgentQuestionCorrect no Firebase
+        finishPlayer(gameId, currentPlayerName, { 
+          score: newScore, 
+          quizEndTime: endTime, 
+          urgentQuestionCorrect: urgentQuestionCorrect 
+        });
         setFinished(true);
         setCurrentScreen('waiting_result');
       }
@@ -629,33 +651,6 @@ export default function App() {
         </motion.div>
       )}
 
-      {currentScreen === 'waiting_result' && (
-        <motion.div
-          key="waiting_result"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
-          className="waiting-screen"
-        >
-          <img 
-            src="/assets/imagem_inicial_01.jpg" 
-            alt="Aguardando resultado" 
-            className="waiting-background-image"
-          />
-          <div className="waiting-container">
-            <h2>Aguardando o outro jogador terminar...</h2>
-            <div className="waiting-animation">
-              <div className="loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
       {currentScreen === 'pre_game_countdown' && (
         <motion.div
           key="pre_game_countdown"
@@ -671,9 +666,45 @@ export default function App() {
             className="waiting-background-image"
           />
           <div className="waiting-container">
-            <h2>O jogo vai iniciar em...</h2>
-            <div className="countdown-display">
-              <div className="countdown-number">{preGameCountdown}</div>
+            {preGameStartTime ? (
+              <>
+                <h2>O jogo vai iniciar em...</h2>
+                <div className="countdown-display">
+                  <div className="countdown-number">{preGameCountdown}</div>
+                  <p>O jogo começará em {preGameCountdown} segundo{preGameCountdown !== 1 ? 's' : ''}!</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2>Aguardando outro jogador...</h2>
+              </>
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      {currentScreen === 'waiting_result' && (
+        <motion.div
+          key="waiting_result"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="waiting-screen"
+        >
+          <img 
+            src="/assets/imagem_inicial_01.jpg" 
+            alt="Aguardando resultado" 
+            className="waiting-background-image"
+          />
+          <div className="waiting-container">
+            <h2>⏳ Aguardando o outro jogador terminar...</h2>
+            <div className="waiting-animation">
+              <div className="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </div>
           </div>
         </motion.div>

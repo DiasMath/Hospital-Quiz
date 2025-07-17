@@ -38,4 +38,9 @@ export function updateQuizStep(roomId, quizStep) {
 // Marcar jogador como finalizado
 export function finishPlayer(roomId, playerName, data) {
   return update(ref(db, `rooms/${roomId}/players/${playerName}`), { ...data, finished: true });
+}
+
+// Salvar preGameStartTime no nó da sala
+export function setPreGameStartTime(roomId, preGameStartTime) {
+  return update(ref(db, `rooms/${roomId}`), { preGameStartTime });
 } 
