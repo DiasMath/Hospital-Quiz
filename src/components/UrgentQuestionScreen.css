@@ -6,6 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
 }
 
 .urgent-question-background-image {
@@ -51,19 +52,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 2vw;
+  box-sizing: border-box;
 }
 
 .urgent-question-card-main {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.97);
   border-radius: 20px;
-  padding: 30px;
+  padding: 2.2rem 2vw 2.2rem 2vw;
   box-shadow: 0 20px 40px rgba(255, 0, 0, 0.3);
   border: 3px solid #ff0000;
-  max-width: 800px;
+  max-width: 1500px;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: break-word;
   text-align: center;
   animation: urgentCardPulse 2s ease-in-out infinite, emergencyShake 1.5s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.2rem;
 }
 
 @keyframes urgentCardPulse {
@@ -78,22 +88,23 @@
 }
 
 .urgent-warning-container {
-  margin-bottom: 20px;
+  margin-bottom: 0.7rem;
   display: flex;
   justify-content: center;
 }
 
 .urgent-warning-icon {
-  font-size: 4rem;
+  font-size: 3.2rem;
   filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
 }
 
 .urgent-phase-text {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   color: #dc2626 !important;
   animation: emergencyShake 0.5s ease-in-out infinite, emergencyBlink 1s ease-in-out infinite;
 }
@@ -119,35 +130,66 @@
 }
 
 .quiz-progress {
-  margin-bottom: 30px;
+  margin-bottom: 1.2rem;
+  margin-top: 0 !important;
 }
 
 .quiz-content {
-  margin-top: 20px;
+  margin-top: 0.7rem;
+  width: 100%;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
+/* Responsividade aprimorada */
+@media (max-width: 900px) {
+  .urgent-question-content-container {
+    padding: 1vw;
+  }
   .urgent-question-card-main {
-    padding: 20px;
-    margin: 10px;
+    max-width: 99vw;
+    padding: 1.2rem 1vw 1.2rem 1vw;
+    border-radius: 16px;
+    font-size: 0.98rem;
   }
-  
   .urgent-phase-text {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
+    margin-bottom: 0rem;
   }
-  
   .urgent-warning-icon {
-    font-size: 3rem;
+    font-size: 2.2rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+  .urgent-question-content-container {
+    padding: 0.5vw;
+  }
+  .urgent-question-card-main {
+    max-width: 100vw;
+    padding: 0.7rem 0.5vw 0.7rem 0.5vw;
+    font-size: 0.93rem;
+    border-radius: 9px;
+    gap: 0.7rem;
+  }
   .urgent-phase-text {
-    font-size: 1.5rem;
+    font-size: 1rem;
+    margin-bottom: 0rem;
   }
-  
   .urgent-warning-icon {
-    font-size: 2.5rem;
+    font-size: 1.3rem;
   }
+  .quiz-progress {
+    margin-bottom: 0.5rem;
+  }
+  .quiz-content {
+    margin-top: 0.3rem;
+  }
+}
+
+/* Garante que botões e textos longos quebrem corretamente */
+.urgent-question-card-main button,
+.urgent-question-card-main h2,
+.urgent-question-card-main .quiz-content {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 } 

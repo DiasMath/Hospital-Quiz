@@ -25,14 +25,14 @@ const questions = [
   },
   {
     phaseText: "URGENTE: Pergunta Surpresa",
-    question: "O paciente precisa tomar um remédio. Dentre os remédios abaixo, escolha qual o paciente deve tomar:",
+    question: "Durante o transplante pulmonar de Stella, ela desenvolveu uma trombose e precisou ser anticoagulada. No entanto, ela possui uma condição que a impede de usar qual anticoagulante que foi informado em sua ficha de pré-operatório?",
     options: [
-      "Dipirona 500mg - para dor de cabeça",
-      "Paracetamol 750mg - para febre alta",
-      "Ibuprofeno 600mg - para inflamação",
-      "Omeprazol 20mg - para proteção gástrica"
+      "Fondaparinux (Arixtra)",
+      "Bivalirudina",
+      "Heparina",
+      "Argatroban"
     ],
-    correctIndex: 1,
+    correctIndex: 2, // Heparina
     imageUrl: "/assets/question_03.jpg",
     isUrgent: true, // Marca esta pergunta como urgente
   },
