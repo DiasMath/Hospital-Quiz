@@ -293,7 +293,7 @@ export default function Result({
               </AnimatePresence>
               {/* Créditos */}
               <p className="result-credits">
-                ❤️ Feito por: Nayana Araújo, Gabriele e Maysa.
+                ❤️ Feito por: Nayana, Gabriele e Maysa.
               </p>
               {/* Botão para reiniciar o quiz */}
               <button
