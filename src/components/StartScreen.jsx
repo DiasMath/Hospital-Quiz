@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './StartScreen.css';
+import { createRoom, joinRoom } from '../firebaseRooms';
 
 /**
  * Tela de boas-vindas antes de iniciar o quiz.
@@ -58,6 +59,11 @@ export default function StartScreen({ onStart }) {
       if (!gameId.trim()) {
         setShowError('Por favor, digite o ID da sala para entrar!');
         return;
+      }
+      if (multiplayerChoice === 'create') {
+        createRoom(gameId, playerName);
+      } else if (multiplayerChoice === 'join') {
+        joinRoom(gameId, playerName);
       }
     }
     onStart(playerName.trim(), gameMode, gameId.trim());

@@ -10,6 +10,7 @@ import ClockAnimation from './components/ClockAnimation';
 import './App.css';
 import QuestionScreen from './components/QuestionScreen';
 import UrgentQuestionScreen from './components/UrgentQuestionScreen';
+import { listenRoom, updatePlayerProgress, updateQuizStep, finishPlayer } from './firebaseRooms';
 
 const QUESTION_TIME = 30; // segundos por pergunta
 const MULTIPLAYER_STORAGE_KEY = 'quizMultiplayer'; // Chave para dados multiplayer
@@ -59,6 +60,9 @@ export default function App() {
 
   // Estado para rastrear se acertou a pergunta urgente
   const [urgentQuestionCorrect, setUrgentQuestionCorrect] = useState(null);
+
+  // Adicione um estado para o snapshot da sala
+  const [roomSnapshot, setRoomSnapshot] = useState(null);
 
   // Função para gerar ID único do jogo
   const generateGameId = () => {
@@ -240,6 +244,62 @@ export default function App() {
     }
   }, [gameMode, countdown, gameStartTime]);
 
+  // Novo efeito: escutar sala multiplayer no Firebase
+  useEffect(() => {
+    if (gameMode === 'multiplayer' && gameId && currentPlayerName) {
+      const unsubscribe = listenRoom(gameId, (room) => {
+        setRoomSnapshot(room);
+        // Se sala existe e tem 2 jogadores, inicia o jogo
+        if (room && room.players && Object.keys(room.players).length >= 2 && currentScreen === 'waiting') {
+          setCurrentScreen('quiz');
+          setIsGameStarted(true);
+        }
+      });
+      return () => {
+        // Firebase não tem unsubscribe direto, mas onValue retorna a função para remover listener
+        if (typeof unsubscribe === 'function') unsubscribe();
+      };
+    }
+  }, [gameMode, gameId, currentPlayerName, currentScreen]);
+
+  // Novo efeito: sincronizar progresso do quiz multiplayer
+  useEffect(() => {
+    if (gameMode === 'multiplayer' && gameId && currentPlayerName) {
+      const unsubscribe = listenRoom(gameId, (room) => {
+        setRoomSnapshot(room);
+        // Sincronizar step global
+        if (room && room.quizStep !== undefined && step !== room.quizStep) {
+          setStep(room.quizStep);
+        }
+        // Sincronizar score do oponente
+        if (room && room.players) {
+          const opponent = Object.keys(room.players).find(p => p !== currentPlayerName);
+          if (opponent) {
+            setOpponentData({
+              ...room.players[opponent],
+              playerName: opponent
+            });
+          }
+        }
+        // Iniciar quiz quando ambos presentes
+        if (room && room.players && Object.keys(room.players).length >= 2 && currentScreen === 'waiting') {
+          setCurrentScreen('quiz');
+          setIsGameStarted(true);
+        }
+        // Se ambos finalizaram, mostrar resultado
+        if (room && room.players) {
+          const allFinished = Object.values(room.players).every(p => p.finished);
+          if (allFinished && currentScreen !== 'result') {
+            setCurrentScreen('result');
+          }
+        }
+      });
+      return () => {
+        if (typeof unsubscribe === 'function') unsubscribe();
+      };
+    }
+  }, [gameMode, gameId, currentPlayerName, currentScreen, step]);
+
   const handleStart = (playerName, mode = 'single', existingGameId = null) => {
     setStep(0);
     setScore(0);
@@ -291,36 +351,48 @@ export default function App() {
     return () => clearTimeout(timerId);
   }, [timeLeft, currentScreen, step]);
 
+  // Atualizar progresso do jogador e step global ao responder
   const handleAnswer = (isCorrect) => {
-    // Verificar se é a pergunta urgente (índice 2, que é a terceira pergunta)
-    if (step === 2 && quizQuestions[step] && quizQuestions[step].isUrgent) {
-      setUrgentQuestionCorrect(isCorrect);
-    }
-    
-    if (isCorrect) setScore(prev => prev + 1);
-    
-    const nextStep = step + 1;
-    if (nextStep < quizQuestions.length) {
-      setStep(nextStep);
+    if (gameMode === 'multiplayer' && gameId && currentPlayerName) {
+      // Atualiza score e step do jogador
+      const newScore = isCorrect ? score + 1 : score;
+      updatePlayerProgress(gameId, currentPlayerName, { score: newScore, step: step + 1 });
+      // Atualiza step global para ambos avançarem juntos
+      updateQuizStep(gameId, step + 1);
+      setScore(newScore);
+      setStep(step + 1);
       setTimeLeft(QUESTION_TIME);
+      // Se for última pergunta, marcar como finalizado
+      if (step + 1 >= quizQuestions.length) {
+        finishPlayer(gameId, currentPlayerName, { score: newScore });
+        setCurrentScreen('result');
+      }
     } else {
-      const endTime = Date.now();
-      const totalTime = Math.round((endTime - quizStartTime) / 1000);
-      
-      setQuizEndTime(endTime);
-      
-      setRanking(prevRanking => [
-        ...prevRanking,
-        { 
-          name: currentPlayerName, 
-          score: score + (isCorrect ? 1 : 0), 
-          time: totalTime,
-          gameMode: gameMode,
-          gameId: gameId
-        }
-      ]);
-      
-      setCurrentScreen('result');
+      // Fluxo single player
+      if (step === 2 && quizQuestions[step] && quizQuestions[step].isUrgent) {
+        setUrgentQuestionCorrect(isCorrect);
+      }
+      if (isCorrect) setScore(prev => prev + 1);
+      const nextStep = step + 1;
+      if (nextStep < quizQuestions.length) {
+        setStep(nextStep);
+        setTimeLeft(QUESTION_TIME);
+      } else {
+        const endTime = Date.now();
+        const totalTime = Math.round((endTime - quizStartTime) / 1000);
+        setQuizEndTime(endTime);
+        setRanking(prevRanking => [
+          ...prevRanking,
+          { 
+            name: currentPlayerName, 
+            score: score + (isCorrect ? 1 : 0), 
+            time: totalTime,
+            gameMode: gameMode,
+            gameId: gameId
+          }
+        ]);
+        setCurrentScreen('result');
+      }
     }
   };
 
