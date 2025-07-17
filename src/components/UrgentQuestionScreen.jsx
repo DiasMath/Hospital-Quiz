@@ -52,27 +52,45 @@ export default function UrgentQuestionScreen({
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="urgent-question-card-main">
-            {/* Sinal de atenção pulsante */}
-            <div className="urgent-warning-container">
-              <motion.div
-                className="urgent-warning-icon"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 5, -5, 0]
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                ⚠️
-              </motion.div>
-            </div>
-
-            {/* Título com animação de emergência */}
-            <div className="urgent-phase-text">
-              {question.phaseText}
+            {/* Título com animação de emergência e ícone */}
+            <div className="urgent-phase-row">
+              {/* Ícone para telas grandes */}
+              <span className="urgent-warning-container hide-on-mobile">
+                <motion.div
+                  className="urgent-warning-icon"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  ⚠️
+                </motion.div>
+              </span>
+              {/* Ícone para telas pequenas, na frente do texto */}
+              <span className="urgent-warning-container show-on-mobile">
+                <motion.div
+                  className="urgent-warning-icon"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  ⚠️
+                </motion.div>
+              </span>
+              <span className="urgent-phase-text">
+                {question.phaseText}
+              </span>
             </div>
 
             <div className="quiz-progress">
