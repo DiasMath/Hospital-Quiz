@@ -370,8 +370,9 @@ export default function App() {
   const handleStart = (playerName, mode = 'single', existingGameId = null) => {
     setStep(0);
     setScore(0);
+    const startTime = Date.now();
     setTimeLeft(QUESTION_TIME);
-    setQuizStartTime(Date.now());
+    setQuizStartTime(startTime);
     setCurrentPlayerName(playerName);
     setGameMode(mode);
     setIsGameStarted(false);
@@ -384,6 +385,8 @@ export default function App() {
       if (existingGameId) {
         setGameId(existingGameId);
         setCurrentScreen('waiting');
+        // Salvar quizStartTime no Firebase para o jogador
+        updatePlayerProgress(existingGameId, playerName, { quizStartTime: startTime });
       } else {
         alert('Erro: Código da sala inválido. Tente novamente.');
         return;
@@ -423,6 +426,12 @@ export default function App() {
     if (gameMode === 'multiplayer' && gameId && currentPlayerName) {
       // Atualiza score e step do jogador
       const newScore = isCorrect ? score + 1 : score;
+      // Se for a pergunta urgente, atualize urgentQuestionCorrect antes de finalizar
+      let newUrgentQuestionCorrect = urgentQuestionCorrect;
+      if (step === 2 && quizQuestions[step] && quizQuestions[step].isUrgent) {
+        setUrgentQuestionCorrect(isCorrect);
+        newUrgentQuestionCorrect = isCorrect;
+      }
       updatePlayerProgress(gameId, currentPlayerName, { score: newScore, step: step + 1 });
       setScore(newScore);
       setStep(step + 1);
@@ -445,7 +454,7 @@ export default function App() {
         finishPlayer(gameId, currentPlayerName, { 
           score: newScore, 
           quizEndTime: endTime, 
-          urgentQuestionCorrect: urgentQuestionCorrect 
+          urgentQuestionCorrect: newUrgentQuestionCorrect 
         });
         setFinished(true);
         setCurrentScreen('waiting_result');
