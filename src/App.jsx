@@ -64,6 +64,9 @@ export default function App() {
   // Adicione um estado para o snapshot da sala
   const [roomSnapshot, setRoomSnapshot] = useState(null);
 
+  // Novo estado: finished (jogador terminou)
+  const [finished, setFinished] = useState(false);
+
   // Função para gerar ID único do jogo
   const generateGameId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -286,11 +289,15 @@ export default function App() {
           setCurrentScreen('quiz');
           setIsGameStarted(true);
         }
-        // Se ambos finalizaram, mostrar resultado
-        if (room && room.players) {
+        // Se este jogador terminou, mas o outro não, mostrar tela de aguardo
+        if (room && room.players && room.players[currentPlayerName] && room.players[currentPlayerName].finished) {
+          setFinished(true);
+          // Só mostra resultado se ambos terminaram
           const allFinished = Object.values(room.players).every(p => p.finished);
           if (allFinished && currentScreen !== 'result') {
             setCurrentScreen('result');
+          } else if (!allFinished && currentScreen !== 'waiting_result') {
+            setCurrentScreen('waiting_result');
           }
         }
       });
@@ -299,6 +306,59 @@ export default function App() {
       };
     }
   }, [gameMode, gameId, currentPlayerName, currentScreen, step]);
+
+  // Efeito para iniciar contagem regressiva sincronizada quando ambos jogadores presentes
+  useEffect(() => {
+    if (
+      gameMode === 'multiplayer' &&
+      gameId &&
+      roomSnapshot &&
+      roomSnapshot.players &&
+      Object.keys(roomSnapshot.players).length >= 2 &&
+      currentScreen === 'waiting'
+    ) {
+      // Só o primeiro a detectar define o horário de início
+      if (!roomSnapshot.preGameStartTime) {
+        const startTime = Date.now() + 3000;
+        updateQuizStep(gameId, roomSnapshot.quizStep || 0); // Garante quizStep
+        // Salva o horário de início da contagem no Firebase
+        finishPlayer(gameId, 'preGameStartTime', { preGameStartTime: startTime });
+      }
+    }
+  }, [gameMode, gameId, roomSnapshot, currentScreen]);
+
+  // Efeito para escutar o horário de início da contagem e exibir a tela
+  useEffect(() => {
+    if (
+      gameMode === 'multiplayer' &&
+      roomSnapshot &&
+      roomSnapshot.preGameStartTime &&
+      currentScreen === 'waiting'
+    ) {
+      setPreGameStartTime(roomSnapshot.preGameStartTime);
+      setPreGameCountdown(3);
+      setCurrentScreen('pre_game_countdown');
+    }
+  }, [gameMode, roomSnapshot, currentScreen]);
+
+  // Efeito para atualizar a contagem regressiva
+  useEffect(() => {
+    if (currentScreen === 'pre_game_countdown' && preGameStartTime) {
+      const interval = setInterval(() => {
+        const now = Date.now();
+        const timeLeft = Math.ceil((preGameStartTime - now) / 1000);
+        setPreGameCountdown(timeLeft > 0 ? timeLeft : 0);
+        if (timeLeft <= 0) {
+          setCurrentScreen('quiz');
+          setIsGameStarted(true);
+          setPreGameCountdown(null);
+          setPreGameStartTime(null);
+          clearInterval(interval);
+        }
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, [currentScreen, preGameStartTime]);
 
   const handleStart = (playerName, mode = 'single', existingGameId = null) => {
     setStep(0);
@@ -365,7 +425,8 @@ export default function App() {
       // Se for última pergunta, marcar como finalizado
       if (step + 1 >= quizQuestions.length) {
         finishPlayer(gameId, currentPlayerName, { score: newScore });
-        setCurrentScreen('result');
+        setFinished(true);
+        setCurrentScreen('waiting_result');
       }
     } else {
       // Fluxo single player
@@ -565,6 +626,56 @@ export default function App() {
             quizEndTime={quizEndTime}
             urgentQuestionCorrect={urgentQuestionCorrect}
           />
+        </motion.div>
+      )}
+
+      {currentScreen === 'waiting_result' && (
+        <motion.div
+          key="waiting_result"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="waiting-screen"
+        >
+          <img 
+            src="/assets/imagem_inicial_01.jpg" 
+            alt="Aguardando resultado" 
+            className="waiting-background-image"
+          />
+          <div className="waiting-container">
+            <h2>Aguardando o outro jogador terminar...</h2>
+            <div className="waiting-animation">
+              <div className="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {currentScreen === 'pre_game_countdown' && (
+        <motion.div
+          key="pre_game_countdown"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="waiting-screen"
+        >
+          <img 
+            src="/assets/imagem_inicial_01.jpg" 
+            alt="Preparando para iniciar" 
+            className="waiting-background-image"
+          />
+          <div className="waiting-container">
+            <h2>O jogo vai iniciar em...</h2>
+            <div className="countdown-display">
+              <div className="countdown-number">{preGameCountdown}</div>
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
